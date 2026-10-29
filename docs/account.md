@@ -61,8 +61,8 @@ YouTube for TV's own activation code (youtube.com/activate) is **not used**: it 
   - Signing in on the TV itself is not tested yet.
 - **Samsung (signed in on the user's TV, 2026-10-29):** works.
   - The menu shows the account photo; Home shows the account's recommendations.
-  - Library: YouTube history (168), Watch later, liked videos (78) and 7 playlists.
-  - Import: 31 subscriptions and 167 history videos.
+  - Library: the YouTube history, Watch later, liked videos and playlists rows all load.
+  - Import: the account's subscriptions and YouTube history came over to the TV.
   - The playback self test still passes 8/8.
   - Problems:
     - The remote can't reach the 2-step code box (above).
