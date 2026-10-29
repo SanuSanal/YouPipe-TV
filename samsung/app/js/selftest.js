@@ -46,6 +46,8 @@ var SelfTest = (function () {
       await waitForProgress(Player.video, 5, 30000);
       var info = Watch.state && Watch.state.info;
       var v = Player.video;
+      // A stream that plays without sound passed before (live with hls.js's light build), so sound is checked too.
+      if (Player.hasAudio() === false) return report(name, false, 'plays without sound (' + Player.quality() + ')');
       return report(
         name,
         true,

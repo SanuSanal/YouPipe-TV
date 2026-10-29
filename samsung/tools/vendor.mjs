@@ -7,7 +7,9 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const fonts = 'node_modules/@fontsource/roboto/files';
 const files = [
   ['node_modules/shaka-player/dist/shaka-player.compiled.js', 'app/lib/shaka-player.compiled.js'],
-  ['node_modules/hls.js/dist/hls.light.min.js', 'app/lib/hls.light.min.js'],
+  // The full build: the light one leaves out alternate audio renditions, and YouTube's live streams carry their audio
+  // as one (docs/streaming.md), so live played silent with it.
+  ['node_modules/hls.js/dist/hls.min.js', 'app/lib/hls.min.js'],
   ...[400, 500, 700].map((w) => [`${fonts}/roboto-latin-${w}-normal.woff2`, `app/lib/roboto-${w}.woff2`]),
 ];
 

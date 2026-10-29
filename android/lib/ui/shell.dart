@@ -388,7 +388,7 @@ class TopBar extends StatelessWidget {
   final FocusNode accountNode;
   final FocusNode searchNode;
 
-  /// The open menu's shadow covers the screen; the search box and the name step back with it.
+  /// The open menu's shadow covers the screen; the search box steps back with it.
   final bool menuOpen;
   final VoidCallback onAccount;
   final VoidCallback onSearch;
@@ -424,43 +424,47 @@ class TopBar extends StatelessWidget {
           AnimatedOpacity(
             opacity: menuOpen ? 0 : 1,
             duration: Tv.slide,
-            child: Row(
-              children: [
-                TvFocusable(
-                  focusNode: searchNode,
-                  scrollAlignment: null,
-                  onSelect: onSearch,
-                  builder: (context, focused) => AnimatedScale(
-                    scale: focused ? 1.03 : 1,
-                    duration: const Duration(milliseconds: 150),
-                    child: Container(
-                      width: 760,
-                      height: 72,
-                      padding: const EdgeInsets.symmetric(horizontal: 28),
-                      decoration: BoxDecoration(
-                        color: focused ? Tv.focusBg : Tv.surface,
-                        borderRadius: BorderRadius.circular(36),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.search, size: 36, color: focused ? Tv.focusFg : Tv.text2),
-                          const SizedBox(width: 20),
-                          Text('Search', style: TextStyle(fontSize: 28, color: focused ? Tv.focusFg : Tv.text2)),
-                        ],
-                      ),
-                    ),
+            child: TvFocusable(
+              focusNode: searchNode,
+              scrollAlignment: null,
+              onSelect: onSearch,
+              builder: (context, focused) => AnimatedScale(
+                scale: focused ? 1.03 : 1,
+                duration: const Duration(milliseconds: 150),
+                child: Container(
+                  width: 760,
+                  height: 72,
+                  padding: const EdgeInsets.symmetric(horizontal: 28),
+                  decoration: BoxDecoration(
+                    color: focused ? Tv.focusBg : Tv.surface,
+                    borderRadius: BorderRadius.circular(36),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.search, size: 36, color: focused ? Tv.focusFg : Tv.text2),
+                      const SizedBox(width: 20),
+                      Text('Search', style: TextStyle(fontSize: 28, color: focused ? Tv.focusFg : Tv.text2)),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 44),
-                SvgPicture.asset('assets/logo.svg', width: 52, height: 52),
-                const SizedBox(width: 16),
-                const Text(
-                  'YouPipe',
-                  style: TextStyle(fontSize: 34, fontWeight: FontWeight.w700, letterSpacing: -0.5, color: Tv.text),
-                ),
-              ],
+              ),
             ),
           ),
+          // The YouPipe name sits at the far right.
+          const Spacer(),
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: SvgPicture.asset('assets/logo.svg', width: 52, height: 52),
+          ),
+          const SizedBox(width: 16),
+          const Padding(
+            padding: EdgeInsets.only(top: 12),
+            child: Text(
+              'YouPipe',
+              style: TextStyle(fontSize: 34, fontWeight: FontWeight.w700, letterSpacing: -0.5, color: Tv.text),
+            ),
+          ),
+          const SizedBox(width: Tv.pad),
         ],
       ),
     );

@@ -38,7 +38,7 @@ The same shape as YouPipe's manifest builder:
 | Source | Engine | Why |
 |---|---|---|
 | VOD with plain DASH formats | **Shaka Player 4.16** (MSE) | ABR, SegmentBase/sidx, seeking |
-| Live (`isLive` + `hlsManifestUrl`) | **hls.js 1.7** (light build, MSE) | The video renditions are MPEG-TS, but the audio renditions (itags 233/234) are **packed ADTS AAC with an ID3 PRIV timestamp**. Shaka parses both as TS: video buffers, audio never appends, playback never starts. hls.js handles packed audio |
+| Live (`isLive` + `hlsManifestUrl`) | **hls.js 1.7** (full build, MSE) | The video renditions are MPEG-TS, but the audio is an **alternate rendition** (`EXT-X-MEDIA`, itags 233 HE-AAC and 234 AAC-LC), **packed ADTS AAC with an ID3 PRIV timestamp**. Shaka parses both as TS: video buffers, audio never appends, playback never starts. hls.js handles packed audio. Its **light build leaves out alternate audio**, so with it live played without sound (found on the TV, 2026-10-29); the self test now fails a stream without sound (`Player.hasAudio`) |
 | Muxed (ANDROID itag 18) | `<video src>` | Progressive MP4. Media elements need no CORS |
 
 Only one engine owns the `<video>` at a time: Shaka is attached for a VOD and detached in `Player.stop()`.

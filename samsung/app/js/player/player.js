@@ -10,6 +10,7 @@ var Player = (function () {
   var hls = null;
   var engine = null; // 'dash' | 'hls' | 'muxed'
   var muxedHeight = 0;
+  var hlsAudio = false; // whether hls.js made an audio buffer (live)
 
   async function init() {
     shaka.polyfill.installAll();
@@ -86,6 +87,10 @@ var Player = (function () {
         capLevelToPlayerSize: false,
       });
       engine = 'hls';
+      hlsAudio = false;
+      hls.on(Hls.Events.BUFFER_CREATED, (e, d) => {
+        hlsAudio = !!(d.tracks && (d.tracks.audio || d.tracks.audiovideo));
+      });
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         var cap = maxHeight();
         var allowed = hls.levels.map((l, i) => (l.height <= cap ? i : -1)).filter((i) => i >= 0);
@@ -154,6 +159,17 @@ var Player = (function () {
     }
   }
 
+  /**
+   * Whether the playing stream has sound: DASH's active variant has an audio codec, hls.js made an audio buffer, or
+   * the muxed stream (always with audio). Null before anything plays. The self test checks it.
+   */
+  function hasAudio() {
+    if (engine === 'dash') return shakaPlayer.getVariantTracks().some((t) => t.active && !!t.audioCodec);
+    if (engine === 'hls') return hlsAudio;
+    if (engine === 'muxed') return true;
+    return null;
+  }
+
   function quality() {
     if (engine === 'muxed') return muxedHeight + 'p';
     if (engine === 'hls' && hls) {
@@ -183,6 +199,7 @@ var Player = (function () {
     load: load,
     stop: stop,
     quality: quality,
+    hasAudio: hasAudio,
     heights: heights,
     selectedHeight: selectedHeight,
     setHeight: setHeight,
@@ -195,6 +212,10 @@ var Player = (function () {
     /** The Shaka player, for diagnostics from the Web Inspector. */
     get shaka() {
       return shakaPlayer;
+    },
+    /** The hls.js instance while a live stream plays, for diagnostics. */
+    get hls() {
+      return hls;
     },
   };
 })();
