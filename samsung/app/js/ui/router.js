@@ -74,7 +74,7 @@ var Router = (function () {
     if (s && s.onBack && s.onBack()) return;
     if (pop()) return;
     if (s && s.nav !== 'home') return Sidenav.go('home');
-    Overlay.confirm('Exit YouPipe?', 'Exit', () => Platform.exit());
+    Overlay.exitPrompt(() => Platform.exit());
   }
 
   function init(el) {

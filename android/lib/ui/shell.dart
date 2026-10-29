@@ -283,12 +283,7 @@ class ShellState extends State<Shell> {
   void _back() {
     if (_nav.hasFocus || _inTopbar) return focusScreen();
     if (_active != 'home') return open('home');
-    showConfirm(
-      context,
-      'Exit YouPipe?',
-      'Exit',
-      () => _system.invokeMethod<void>('exit').catchError((_) => SystemNavigator.pop()),
-    );
+    showExitPrompt(context, () => _system.invokeMethod<void>('exit').catchError((_) => SystemNavigator.pop()));
   }
 
   /// The open section's page scrolled (not a row sliding sideways): the top bar follows it.

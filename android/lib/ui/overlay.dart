@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import 'focusable.dart';
 import 'theme.dart';
@@ -217,6 +218,90 @@ Future<void> showConfirm(
     ),
   ),
 );
+
+/// The exit prompt over the whole screen, like YouTube on TV: the mark, the question, Stay and Exit stacked. Stay has
+/// focus; Back stays too.
+Future<void> showExitPrompt(BuildContext context, VoidCallback onExit) => Navigator.of(context).push(
+  PageRouteBuilder<void>(
+    opaque: false,
+    barrierColor: Tv.bg,
+    barrierDismissible: true,
+    transitionDuration: const Duration(milliseconds: 280),
+    reverseTransitionDuration: const Duration(milliseconds: 120),
+    pageBuilder: (ctx, a, b) => Stage(
+      child: Material(
+        type: MaterialType.transparency,
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SvgPicture.asset('assets/logo.svg', width: 128, height: 128),
+              const SizedBox(height: 40),
+              const Text(
+                'Exit YouPipe?',
+                style: TextStyle(fontSize: 56, fontWeight: FontWeight.w700, letterSpacing: -0.5, color: Tv.text),
+              ),
+              const SizedBox(height: 16),
+              const Text('Press Back to keep watching', style: TextStyle(fontSize: 26, color: Tv.text2)),
+              const SizedBox(height: 64),
+              _ExitButton(label: 'Stay', autofocus: true, onSelect: () => Navigator.of(ctx).pop()),
+              const SizedBox(height: 20),
+              _ExitButton(
+                label: 'Exit',
+                onSelect: () {
+                  Navigator.of(ctx).pop();
+                  onExit();
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+    transitionsBuilder: (context, a, b, child) {
+      final curve = CurvedAnimation(parent: a, curve: const Cubic(0.2, 0, 0, 1));
+      return FadeTransition(
+        opacity: a,
+        child: SlideTransition(
+          position: Tween(begin: const Offset(0, 0.02), end: Offset.zero).animate(curve),
+          child: ScaleTransition(scale: Tween(begin: 0.96, end: 1.0).animate(curve), child: child),
+        ),
+      );
+    },
+  ),
+);
+
+class _ExitButton extends StatelessWidget {
+  const _ExitButton({required this.label, required this.onSelect, this.autofocus = false});
+
+  final String label;
+  final VoidCallback onSelect;
+  final bool autofocus;
+
+  @override
+  Widget build(BuildContext context) => TvFocusable(
+    autofocus: autofocus,
+    onSelect: onSelect,
+    scrollAlignment: null,
+    builder: (context, focused) => AnimatedScale(
+      scale: focused ? 1.05 : 1,
+      duration: const Duration(milliseconds: 150),
+      child: Container(
+        width: 520,
+        height: 80,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: focused ? Tv.focusBg : const Color(0x1FFFFFFF),
+          borderRadius: BorderRadius.circular(40),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(fontSize: 28, fontWeight: FontWeight.w500, color: focused ? Tv.focusFg : Tv.text),
+        ),
+      ),
+    ),
+  );
+}
 
 /// A short message at the bottom of the screen.
 abstract final class Toast {

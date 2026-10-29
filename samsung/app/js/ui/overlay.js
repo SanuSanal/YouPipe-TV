@@ -95,6 +95,30 @@ var Overlay = (function () {
     return layer;
   }
 
+  /** The exit prompt over the whole screen, like YouTube on TV: the mark, the question, Stay and Exit stacked. */
+  function exitPrompt(onExit) {
+    var stay = h('div.exit-button.focusable', { text: 'Stay' });
+    var exit = h('div.exit-button.focusable', { text: 'Exit' });
+    var layer = h('div.exit-layer', [
+      h('div.exit', [
+        Dom.img('logo.svg', 'exit-logo'),
+        h('div.exit-title', { text: 'Exit YouPipe?' }),
+        h('div.exit-detail', { text: 'Press Back to keep watching' }),
+        h('div.exit-buttons.vlist', [stay, exit]),
+      ]),
+    ]);
+    stay._activate = () => close(layer);
+    exit._activate = () => {
+      close(layer);
+      onExit();
+    };
+    stay.addEventListener('click', stay._activate);
+    exit.addEventListener('click', exit._activate);
+    open(layer);
+    Focus.set(stay);
+    return layer;
+  }
+
   function toast(message, ms) {
     var t = document.getElementById('toast');
     t.textContent = message;
@@ -103,5 +127,5 @@ var Overlay = (function () {
     toastTimer = setTimeout(() => t.classList.remove('show'), ms || 3000);
   }
 
-  return { panel: panel, confirm: confirm, toast: toast, close: close, isOpen: isOpen, optionRow: optionRow };
+  return { panel: panel, confirm: confirm, exitPrompt: exitPrompt, toast: toast, close: close, isOpen: isOpen, optionRow: optionRow };
 })();

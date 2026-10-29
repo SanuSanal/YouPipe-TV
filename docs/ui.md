@@ -35,6 +35,7 @@ Both lay out a **1920×1080 stage** with the same pixel sizes:
 - **Up** from a section's first row goes to the top bar's Search; Left/Right there move between the account and Search; Down returns to the rows; Back returns to where focus was.
 - **OK** activates on release. **Holding OK** (600 ms) on a card opens its options: Play, Save to/Remove from Watch later, Go to channel; in Library also "Remove from …"; on channels Subscribe/Unsubscribe; on playlists Save to Library.
 - **Back:** closes a panel; then the open screen (player → previous screen); then goes Home; on Home it asks to exit.
+- **Exit prompt** (Samsung `Overlay.exitPrompt`, Android `showExitPrompt`): like YouTube's on TV, it covers the screen in the solid background colour with the YouPipe mark, "Exit YouPipe?", "Press Back to keep watching", and two wide buttons stacked, Stay (focused) and Exit. Back stays. It fades and rises in with opacity and transforms only.
 - **Media keys:** play/pause, play, pause, stop (leaves the player), fast-forward/rewind (seek), next/previous (and channel up/down) in the player.
 - Samsung registers the media and colour keys (`Platform.registerKeys`); the **red** key toggles the diagnostics log.
 
