@@ -15,12 +15,13 @@ import 'overlay.dart';
 import 'theme.dart';
 
 /// Arrow keys a widget left alone move focus to the nearest stop in that direction; [onEdge] gets the ones that
-/// found nothing (the Shell turns Left into the menu).
+/// found nothing (the Shell turns Left into the menu). With [spatial] off, [onEdge] gets every arrow.
 class TvKeys extends StatelessWidget {
-  const TvKeys({super.key, required this.child, this.onEdge});
+  const TvKeys({super.key, required this.child, this.onEdge, this.spatial = true});
 
   final Widget child;
   final bool Function(TraversalDirection dir)? onEdge;
+  final bool spatial;
 
   static TraversalDirection? direction(LogicalKeyboardKey k) => switch (k) {
     LogicalKeyboardKey.arrowLeft => TraversalDirection.left,
@@ -39,7 +40,7 @@ class TvKeys extends StatelessWidget {
       final dir = direction(e.logicalKey);
       final focused = FocusManager.instance.primaryFocus;
       if (dir == null || focused == null) return KeyEventResult.ignored;
-      if (focused.focusInDirection(dir)) return KeyEventResult.handled;
+      if (spatial && focused.focusInDirection(dir)) return KeyEventResult.handled;
       onEdge?.call(dir);
       return KeyEventResult.handled;
     },
@@ -109,34 +110,36 @@ class _NavRailState extends State<NavRail> {
         }
         return _select.handle(e);
       },
-      child: AnimatedContainer(
-        duration: Tv.slide,
-        curve: Curves.easeOut,
-        width: _focused ? Tv.navOpenWidth : Tv.navWidth,
-        padding: const EdgeInsets.symmetric(vertical: 40),
-        decoration: BoxDecoration(
-          color: Tv.bg,
-          boxShadow: _focused
-              ? const [BoxShadow(color: Color(0xD9000000), blurRadius: 160, spreadRadius: 40, offset: Offset(120, 0))]
-              : null,
-        ),
-        child: ClipRect(
-          child: OverflowBox(
-            alignment: Alignment.topLeft,
-            maxWidth: Tv.navOpenWidth,
-            minWidth: Tv.navOpenWidth,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // The account and the YouPipe name sit in the top bar, above the rail.
-                const SizedBox(height: 120),
-                for (var i = 0; i < sections.length; i++) ...[
-                  if (i == sections.length - 1) const Spacer(),
-                  _item(sections[i], i),
-                ],
-              ],
+      // Opens with a transform and opacity only; animating its width and a large blurred shadow stuttered on the
+      // Samsung TV (docs/ui.md), and is just as costly for a TV's GPU here. The rail is always open-width: its panel
+      // slides out from behind the icons, and the Shell fades a dim layer over the screen.
+      child: SizedBox(
+        width: Tv.navOpenWidth,
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: AnimatedSlide(
+                offset: _focused ? Offset.zero : const Offset(-(Tv.navOpenWidth - Tv.navWidth) / Tv.navOpenWidth, 0),
+                duration: Tv.slide,
+                curve: Curves.easeOut,
+                child: const ColoredBox(color: Tv.bg),
+              ),
             ),
-          ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 40),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // The account and the YouPipe name sit in the top bar, above the rail.
+                  const SizedBox(height: 120),
+                  for (var i = 0; i < sections.length; i++) ...[
+                    if (i == sections.length - 1) const Spacer(),
+                    _item(sections[i], i),
+                  ],
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -148,12 +151,13 @@ class _NavRailState extends State<NavRail> {
     final color = focused ? Tv.focusFg : (active ? Tv.text : Tv.text2);
     return GestureDetector(
       onTap: () => widget.onOpen(s.$1),
+      // The same size open or closed (only the focused one, in the open menu, has a fill), so opening lays nothing out.
       child: Container(
         margin: const EdgeInsets.fromLTRB(16, 4, 16, 4),
         height: 72,
-        width: _focused ? Tv.navOpenWidth - 32 : Tv.navWidth - 32,
-        // Collapsed, the icon sits in the middle of the 80-wide pill.
-        padding: EdgeInsets.symmetric(horizontal: _focused ? 24 : 22),
+        width: Tv.navOpenWidth - 32,
+        // Closed, the icon sits in the middle of the rail.
+        padding: const EdgeInsets.symmetric(horizontal: 22),
         decoration: BoxDecoration(
           color: focused ? Tv.focusBg : Colors.transparent,
           borderRadius: BorderRadius.circular(36),
@@ -161,7 +165,12 @@ class _NavRailState extends State<NavRail> {
         child: Row(
           children: [
             Icon(s.$3, size: 36, color: color),
-            if (_focused) ...[const SizedBox(width: 28), Text(s.$2, style: TextStyle(fontSize: 28, color: color))],
+            const SizedBox(width: 28),
+            AnimatedOpacity(
+              opacity: _focused ? 1 : 0,
+              duration: Tv.slide,
+              child: Text(s.$2, style: TextStyle(fontSize: 28, color: color)),
+            ),
           ],
         ),
       ),
@@ -195,8 +204,10 @@ class ShellState extends State<Shell> {
   static const _system = MethodChannel('youpipe/system');
 
   final _nav = FocusNode(debugLabel: 'nav');
-  final _topAccount = FocusNode(debugLabel: 'top account');
-  final _topSearch = FocusNode(debugLabel: 'top search');
+  // Left from a screen goes to the menu, never to the top bar: only Up reaches the bar (below), and the bar moves
+  // between its two stops itself.
+  final _topAccount = FocusNode(debugLabel: 'top account', skipTraversal: true);
+  final _topSearch = FocusNode(debugLabel: 'top search', skipTraversal: true);
   final _roots = {for (final k in _keys) k: FocusNode(debugLabel: k, skipTraversal: true)};
   final _visited = <String>{'home'};
   final _lastFocus = <String, FocusNode>{};
@@ -330,6 +341,19 @@ class ShellState extends State<Shell> {
               ),
             ),
           ),
+          // Dims the screen while the menu is open: a plain colour, which needs no painting to fade.
+          Positioned.fill(
+            child: IgnorePointer(
+              child: ListenableBuilder(
+                listenable: _nav,
+                builder: (context, _) => AnimatedOpacity(
+                  opacity: _nav.hasFocus ? 1 : 0,
+                  duration: Tv.slide,
+                  child: const ColoredBox(color: Color(0xA6000000)),
+                ),
+              ),
+            ),
+          ),
           Positioned(
             left: 0,
             top: 0,
@@ -346,9 +370,20 @@ class ShellState extends State<Shell> {
                 valueListenable: _topbarY,
                 builder: (context, y, child) => Transform.translate(offset: Offset(0, -y), child: child),
                 child: TvKeys(
-                  // Up stops here; Left from the account opens the menu.
+                  spatial: false,
+                  // Left and Right move between the account and Search, Left from the account opens the menu,
+                  // Down returns to the screen, and Up stops here.
                   onEdge: (dir) {
-                    if (dir == TraversalDirection.left) _nav.requestFocus();
+                    switch (dir) {
+                      case TraversalDirection.left:
+                        _topSearch.hasFocus ? _topAccount.requestFocus() : _nav.requestFocus();
+                      case TraversalDirection.right:
+                        if (_topAccount.hasFocus) _topSearch.requestFocus();
+                      case TraversalDirection.down:
+                        focusScreen();
+                      case TraversalDirection.up:
+                        break;
+                    }
                     return true;
                   },
                   child: FocusTraversalGroup(

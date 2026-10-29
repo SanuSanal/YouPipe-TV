@@ -107,27 +107,51 @@ img.failed {
 
 /* Left menu ---------------------------------------------------------------------------------------------------- */
 
+/*
+ * The menu opens with transforms and opacity only, which the TV's GPU animates by itself. Measured on the TV
+ * (2026-10-29): animating its width and a large blurred shadow gave about 5 frames per opening; a full-screen gradient
+ * shade cost a ~150 ms repaint; a plain colour layer needs no painting at all. Now about 20 frames.
+ * The menu is always open-width; its panel slides out from behind the rail, and a dim layer fades in over the screen.
+ */
 #sidenav {
   position: absolute;
   left: 0;
   top: 0;
   bottom: 0;
-  width: var(--nav-w);
+  width: var(--nav-open-w);
   z-index: 3;
-  background: var(--bg);
   display: flex;
   flex-direction: column;
   padding: 40px 0 40px;
-  transition:
-    width var(--slide),
-    box-shadow var(--slide);
-  overflow: hidden;
+  pointer-events: none;
 }
-#app.nav-open #sidenav {
-  width: var(--nav-open-w);
-  box-shadow: 120px 0 160px 40px rgba(0, 0, 0, 0.85);
+.nav-panel {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--bg);
+  transform: translateX(calc(var(--nav-w) - var(--nav-open-w)));
+  transition: transform var(--slide);
+  will-change: transform;
 }
-#app.fullscreen #sidenav {
+#sidenav.open .nav-panel {
+  transform: none;
+}
+#nav-shade {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.65);
+  opacity: 0;
+  transition: opacity var(--slide);
+  will-change: opacity;
+}
+#nav-shade.open {
+  opacity: 1;
+}
+#app.fullscreen #sidenav,
+#app.fullscreen #nav-shade {
   display: none;
 }
 .nav-space {
@@ -142,6 +166,7 @@ img.failed {
   padding: 0 16px;
 }
 .nav-item {
+  pointer-events: auto;
   display: flex;
   align-items: center;
   gap: 28px;
@@ -165,9 +190,17 @@ img.failed {
 .nav-label {
   opacity: 0;
   transition: opacity var(--slide);
+  will-change: opacity;
 }
-#app.nav-open .nav-label {
+#sidenav.open .nav-label {
   opacity: 1;
+}
+/* Closed, only the icons take the mouse, so the screen under the hidden labels stays reachable (desktop testing). */
+#sidenav:not(.open) .nav-item {
+  pointer-events: none;
+}
+#sidenav:not(.open) .nav-item .icon {
+  pointer-events: auto;
 }
 .nav-item.focused {
   background: var(--focus-bg);
@@ -306,6 +339,11 @@ img.failed {
 .row {
   position: relative;
   margin-bottom: 36px;
+  /* The TV then restyles and repaints one row per focus move, not the page. The negative margin keeps room for
+     the focused card's ring, which paint containment would otherwise clip. */
+  contain: layout paint;
+  margin-left: -32px;
+  padding-left: 32px;
 }
 .row-title {
   font-size: 34px;
@@ -324,7 +362,7 @@ img.failed {
   display: flex;
   gap: var(--gap);
   width: max-content;
-  padding: 14px var(--pad) 8px 0;
+  padding: 18px var(--pad) 8px 0;
   transition: transform var(--slide);
 }
 .row-status {
@@ -339,6 +377,7 @@ img.failed {
   position: relative;
   width: var(--card-w);
   flex: none;
+  contain: layout style;
 }
 .thumb {
   position: relative;
@@ -347,9 +386,8 @@ img.failed {
   border-radius: 12px;
   overflow: hidden;
   background: var(--surface-2);
-  transition:
-    transform 0.18s,
-    box-shadow 0.18s;
+  /* Only the scale animates: an animated shadow repaints on every frame on the TV. */
+  transition: transform 0.18s;
 }
 .thumb img {
   display: block;
@@ -447,9 +485,7 @@ img.failed {
   border-radius: 50%;
   overflow: hidden;
   background: var(--surface-2);
-  transition:
-    transform 0.18s,
-    box-shadow 0.18s;
+  transition: transform 0.18s;
 }
 .avatar-wrap img {
   width: 100%;
@@ -927,7 +963,7 @@ img.failed {
   height: 52px;
 }
 /* The open menu's shadow covers the screen; the search box steps back with it. */
-#app.nav-open .topbar-search {
+#topbar.nav-open .topbar-search {
   opacity: 0;
 }
 .screen.has-topbar .screen-content {

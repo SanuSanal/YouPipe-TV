@@ -26,8 +26,17 @@ var Sidenav = (function () {
     });
     // Settings sits at the bottom, like YouTube's.
     list.lastChild.classList.add('nav-bottom');
-    Dom.append(el, [h('div.nav-space'), list]);
-    Focus.onChange((now) => document.getElementById('app').classList.toggle('nav-open', !!now && el.contains(now)));
+    Dom.append(el, [h('div.nav-panel'), h('div.nav-space'), list]);
+    // Only the menu, its shade and the top bar change when it opens, not the whole app, so the TV restyles little.
+    var shade = document.getElementById('nav-shade');
+    var topbar = document.getElementById('topbar');
+    Focus.onChange((now) => {
+      var open = !!now && el.contains(now);
+      if (open === el.classList.contains('open')) return;
+      el.classList.toggle('open', open);
+      shade.classList.toggle('open', open);
+      topbar.classList.toggle('nav-open', open);
+    });
   }
 
   /** Registers the factory for a section's root screen. */
