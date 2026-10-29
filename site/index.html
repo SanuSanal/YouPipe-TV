@@ -262,6 +262,16 @@
             </li>
           </ol>
           <details>
+            <summary>Download on your phone and send it to the TV</summary>
+            <p>Typing on the TV is slow; your phone can do the download instead.</p>
+            <ol>
+              <li>Install <b>Send Files to TV</b> (or a similar file-sending app) from the Play Store on both the phone and the TV. Keep them on the same Wi-Fi.</li>
+              <li>On the phone, download the APK from the <a href="https://github.com/SanuSanal/YouPipe-TV/releases/latest">latest release</a> (<code>…-android.apk</code> works on every TV).</li>
+              <li>Open the app on the TV and choose <b>Receive</b>; on the phone choose <b>Send</b>, pick the APK and your TV.</li>
+              <li>On the TV, open the received APK from the app (or a file manager) and choose <b>Install</b>. The first time, the TV asks you to allow installing from that app: turn it on under <b>Unknown sources</b>, as in step 1.</li>
+            </ol>
+          </details>
+          <details>
             <summary>Install from a computer instead (adb)</summary>
             <p>On the TV, turn on developer options (above), then <b>Settings → System → Developer options → USB debugging</b> (on some TVs, <b>Network debugging</b>). Find the TV's IP address under <b>Settings → Network</b>. On the computer, with <a href="https://developer.android.com/tools/releases/platform-tools">Android platform-tools</a>:</p>
             <pre>adb connect 192.168.1.50:5555
