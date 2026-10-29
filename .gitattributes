@@ -1,0 +1,4 @@
+# LF everywhere, so CI on Linux (dart format --set-exit-if-changed) sees what was committed.
+* text=auto eol=lf
+*.ps1 text eol=crlf
+*.bat text eol=crlf

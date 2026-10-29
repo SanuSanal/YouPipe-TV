@@ -1,0 +1,57 @@
+import 'package:flutter/material.dart';
+
+/// YouPipe TV's look, like YouTube on TV (docs/ui.md): dark, Roboto, YouPipe red. Sizes are in the 1920×1080 stage's
+/// pixels (Stage), the same numbers as the Samsung app's stylesheet.
+abstract final class Tv {
+  static const bg = Color(0xFF0F0F0F);
+  static const surface = Color(0xFF212121);
+  static const surface2 = Color(0xFF2C2C2C);
+  static const text = Color(0xFFF1F1F1);
+  static const text2 = Color(0xFFAAAAAA);
+  static const brand = Color(0xFFFF0000);
+  static const focusBg = Color(0xFFF1F1F1);
+  static const focusFg = Color(0xFF0F0F0F);
+
+  static const navWidth = 112.0;
+  static const navOpenWidth = 360.0;
+  static const pad = 64.0;
+  static const cardWidth = 372.0;
+  static const gap = 28.0;
+  static const slide = Duration(milliseconds: 220);
+
+  static const rowTitle = TextStyle(fontSize: 30, fontWeight: FontWeight.w500, color: text);
+  static const cardTitle = TextStyle(fontSize: 24, height: 31 / 24, fontWeight: FontWeight.w500, color: text);
+  static const cardMeta = TextStyle(fontSize: 20, height: 27 / 20, color: text2);
+  static const pageTitle = TextStyle(fontSize: 48, fontWeight: FontWeight.w500, color: text);
+
+  static ThemeData theme() => ThemeData(
+    brightness: Brightness.dark,
+    scaffoldBackgroundColor: bg,
+    canvasColor: bg,
+    colorScheme: const ColorScheme.dark(primary: brand, surface: surface),
+    fontFamily: 'Roboto',
+    // Focus is drawn by our own widgets.
+    focusColor: Colors.transparent,
+    hoverColor: Colors.transparent,
+    splashFactory: NoSplash.splashFactory,
+  );
+}
+
+/// The 1920×1080 stage, scaled to the TV's logical size (Android TVs report 960×540 dp at 2×, so one stage pixel is
+/// one screen pixel there).
+class Stage extends StatelessWidget {
+  const Stage({super.key, required this.child, this.color = Colors.transparent});
+
+  final Widget child;
+
+  /// Around the stage when the screen isn't 16:9; transparent for overlays.
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => ColoredBox(
+    color: color,
+    child: Center(
+      child: FittedBox(child: SizedBox(width: 1920, height: 1080, child: child)),
+    ),
+  );
+}

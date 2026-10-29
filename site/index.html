@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>YouPipe TV: ad-free YouTube for Android TV and Samsung TVs</title>
+  <meta name="description" content="YouPipe TV is a free YouTube app for Android TV, Google TV and Samsung TVs, laid out like YouTube on TV: no ads, no account, SponsorBlock, and your history and subscriptions kept on the TV.">
+  <meta name="theme-color" content="#FF0000">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="YouPipe TV">
+  <meta property="og:description" content="All of YouTube on your TV. None of the ads. For Android TV, Google TV and Samsung TVs.">
+  <meta property="og:image" content="https://sanusanal.github.io/YouPipe-TV/og.png">
+  <link rel="icon" href="logo.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --porcelain: #F3F4F6;
+      --paper: #FFFFFF;
+      --ink: #0E0F12;
+      --steel: #5A606C;
+      --line: #DADDE2;
+      --signal: #FF0000;
+      --night: #0F0F0F;
+      --display: "Unbounded", system-ui, sans-serif;
+      --body: "Instrument Sans", system-ui, sans-serif;
+      --mono: "JetBrains Mono", ui-monospace, monospace;
+      --wrap: 76rem;
+      --gutter: clamp(1rem, 4vw, 3rem);
+      color-scheme: light;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --porcelain: #0B0C0E;
+        --paper: #141519;
+        --ink: #F2F3F5;
+        --steel: #9CA2AD;
+        --line: #26282E;
+        color-scheme: dark;
+      }
+    }
+    html { font-size: 16px; -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+    @media (min-width: 1800px) { html { font-size: calc(16px + (100vw - 1800px) * 0.004); } }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; background: var(--porcelain); color: var(--ink); font: 400 1.0625rem/1.6 var(--body); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+    a { color: inherit; }
+    :focus-visible { outline: 3px solid var(--signal); outline-offset: 3px; border-radius: 6px; }
+    .wrap { width: min(100% - 2 * var(--gutter), var(--wrap)); margin-inline: auto; }
+    .mono, code, pre { font-family: var(--mono); }
+    h1, h2 { font-family: var(--display); font-weight: 700; line-height: 1.05; letter-spacing: -0.02em; margin: 0; }
+    h2 { font-size: clamp(1.75rem, 3.2vw, 2.75rem); }
+    h3 { font-weight: 600; font-size: 1.125rem; line-height: 1.3; margin: 0; }
+    p { margin: 0; }
+
+    /* Header */
+    .top { display: flex; align-items: center; justify-content: space-between; padding-block: 1.25rem; }
+    .brand { display: inline-flex; align-items: center; gap: 0.625rem; text-decoration: none; font: 700 1.0625rem var(--display); }
+    .brand img { width: 2.25rem; height: 2.25rem; }
+    .top nav { display: flex; gap: 1.5rem; align-items: center; }
+    .top nav a { text-decoration: none; font-weight: 500; color: var(--steel); }
+    .top nav a:hover { color: var(--ink); }
+    @media (max-width: 640px) { .top nav .hide-sm { display: none; } }
+
+    .btn { display: inline-flex; align-items: center; gap: 0.625rem; padding: 0.9rem 1.5rem; border-radius: 999px; font: 600 1rem var(--body); text-decoration: none; border: 0; cursor: pointer; transition: transform 0.15s ease, box-shadow 0.15s ease; }
+    .btn svg { width: 1.25rem; height: 1.25rem; flex: none; }
+    .btn-primary { background: var(--signal); color: #fff; box-shadow: 0 0.5rem 1.5rem -0.5rem rgb(255 0 0 / 0.55); }
+    .btn-primary:hover { transform: translateY(-1px); }
+    .btn-quiet { background: var(--paper); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
+    .btn-quiet:hover { transform: translateY(-1px); }
+
+    /* Hero */
+    .hero { display: grid; grid-template-columns: 0.95fr 1.05fr; gap: clamp(2rem, 5vw, 4.5rem); align-items: center; padding-block: clamp(2.5rem, 6vw, 5rem) clamp(3rem, 6vw, 5rem); }
+    .hero h1 { font-size: clamp(2.5rem, 5.6vw, 4.9rem); }
+    .hero h1 .minus { display: block; color: var(--signal); }
+    .lede { margin-top: 1.5rem; max-width: 33rem; font-size: 1.1875rem; color: var(--steel); }
+    .get { margin-top: 2.25rem; display: flex; flex-wrap: wrap; gap: 0.75rem; }
+    .get-meta { margin-top: 1rem; color: var(--steel); font-size: 0.9375rem; }
+    @media (max-width: 960px) { .hero { grid-template-columns: 1fr; } }
+
+    /* TV mockup: YouPipe's Home, drawn in CSS with made-up videos */
+    .tv { position: relative; }
+    .tv-frame { background: #0B0B0C; padding: 1.2%; border-radius: 0.9rem; box-shadow: inset 0 0 0 2px #2D2F35, 0 2.5rem 5rem -1.5rem rgb(14 15 18 / 0.45); }
+    .tv-screen { aspect-ratio: 16 / 9; background: var(--night); border-radius: 0.3rem; overflow: hidden; display: grid; grid-template-columns: 6% 1fr; font-size: clamp(0.4rem, 1vw, 0.75rem); color: #F1F1F1; }
+    .tv-stand { width: 26%; height: 0.9rem; margin: 0 auto; background: linear-gradient(#2A2C31, #121316); clip-path: polygon(12% 0, 88% 0, 100% 100%, 0 100%); }
+    .rail { display: flex; flex-direction: column; align-items: center; gap: 0.9em; padding-top: 1.2em; }
+    .rail i { width: 1.4em; height: 1.4em; border-radius: 0.35em; background: #3A3B40; }
+    .rail i.logo { background: var(--signal); width: 1.8em; height: 1.3em; border-radius: 0.35em; margin-bottom: 0.8em; }
+    .rail i.on { background: #F1F1F1; }
+    .rail i.end { margin-top: auto; margin-bottom: 1.2em; }
+    .rows { padding: 1.2em 0 0 1.4em; overflow: hidden; }
+    .row-title { font-weight: 600; font-size: 1.15em; margin: 0 0 0.5em; }
+    .cards { display: flex; gap: 0.7em; margin-bottom: 1.1em; }
+    .card { width: 22%; flex: none; }
+    .card .th { aspect-ratio: 16 / 9; border-radius: 0.35em; position: relative; }
+    .card .ln { height: 0.55em; border-radius: 0.2em; background: #2C2C2C; margin-top: 0.45em; width: 90%; }
+    .card .ln.s { width: 55%; }
+    .card.focus .th { box-shadow: 0 0 0 0.2em #fff; transform: scale(1.06); transform-origin: left center; }
+    .th.a { background: linear-gradient(160deg, #F08A5D, #B83B5E 55%, #4B2C5E); }
+    .th.b { background: linear-gradient(200deg, #69C9D0, #2B6C8F 60%, #12263A); }
+    .th.c { background: linear-gradient(140deg, #FFD36E, #F3824A 50%, #7A2E3B); }
+    .th.d { background: linear-gradient(170deg, #9FE2A5, #3E9A6B 50%, #163B2D); }
+    .th.e { background: linear-gradient(190deg, #C9A7FF, #6B47C2 55%, #241B4D); }
+    .th.f { background: linear-gradient(150deg, #FF9AA2, #C2436B 55%, #3A1C33); }
+    .th .dur { position: absolute; right: 0.3em; bottom: 0.3em; background: rgb(0 0 0 / 0.75); border-radius: 0.2em; padding: 0 0.3em; font-size: 0.75em; }
+    .th .live { background: #CC0000; }
+
+    /* Sections */
+    section { padding-block: clamp(3rem, 7vw, 5.5rem); }
+    .eyebrow { font: 500 0.8125rem var(--mono); text-transform: uppercase; letter-spacing: 0.12em; color: var(--signal); margin-bottom: 0.75rem; }
+    .section-lede { margin-top: 0.875rem; color: var(--steel); max-width: 40rem; }
+    .features { margin-top: 2.5rem; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+    .feature { background: var(--paper); border-radius: 1.25rem; padding: 1.5rem; box-shadow: inset 0 0 0 1px var(--line); }
+    .feature svg { width: 1.75rem; height: 1.75rem; color: var(--signal); margin-bottom: 0.875rem; }
+    .feature p { margin-top: 0.375rem; color: var(--steel); font-size: 0.9875rem; }
+    @media (max-width: 900px) { .features { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 600px) { .features { grid-template-columns: 1fr; } }
+
+    /* Install */
+    .tabs { margin-top: 2rem; display: inline-flex; gap: 0.25rem; padding: 0.3rem; background: var(--paper); border-radius: 999px; box-shadow: inset 0 0 0 1px var(--line); }
+    .tabs button { font: 600 1rem var(--body); color: var(--steel); background: transparent; border: 0; border-radius: 999px; padding: 0.7rem 1.25rem; cursor: pointer; }
+    .tabs button[aria-selected="true"] { background: var(--ink); color: var(--porcelain); }
+    .panel { margin-top: 1.5rem; }
+    .panel[hidden] { display: none; }
+    .needs { background: var(--paper); border-radius: 1.25rem; padding: 1.25rem 1.5rem; box-shadow: inset 0 0 0 1px var(--line); color: var(--steel); }
+    .needs b { color: var(--ink); }
+    .steps { list-style: none; counter-reset: step; padding: 0; margin: 1.25rem 0 0; display: grid; gap: 1rem; }
+    .steps > li { counter-increment: step; position: relative; background: var(--paper); border-radius: 1.25rem; padding: 1.5rem 1.5rem 1.5rem 4.75rem; box-shadow: inset 0 0 0 1px var(--line); }
+    .steps > li::before { content: counter(step); position: absolute; left: 1.5rem; top: 1.4rem; width: 2.25rem; height: 2.25rem; border-radius: 50%; background: var(--signal); color: #fff; font: 700 1rem var(--display); display: grid; place-items: center; }
+    .steps p, .steps ul { margin-top: 0.5rem; color: var(--steel); }
+    .steps ul { padding-left: 1.2rem; }
+    .steps li li { margin-top: 0.3rem; }
+    .steps b, .steps strong { color: var(--ink); }
+    kbd { font: 500 0.8125rem var(--mono); padding: 0.1rem 0.4rem; border-radius: 0.35rem; background: var(--porcelain); box-shadow: inset 0 0 0 1px var(--line); color: var(--ink); }
+    pre { margin: 0.75rem 0 0; padding: 0.9rem 1.1rem; border-radius: 0.75rem; background: #0E0F12; color: #E8E9EC; font-size: 0.8125rem; overflow-x: auto; }
+    code { font-size: 0.875em; }
+    .note { margin-top: 1rem; padding: 1rem 1.25rem; border-radius: 1rem; background: rgb(255 0 0 / 0.07); color: var(--ink); font-size: 0.9375rem; }
+    .apks { margin-top: 0.75rem; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+    table { margin-top: 2rem; width: 100%; border-collapse: collapse; background: var(--paper); border-radius: 1.25rem; overflow: hidden; box-shadow: inset 0 0 0 1px var(--line); }
+    th, td { text-align: left; padding: 1rem 1.25rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { font-size: 0.875rem; color: var(--steel); font-weight: 600; }
+    tr:last-child td { border-bottom: 0; }
+
+    details { background: var(--paper); border-radius: 1rem; padding: 1.1rem 1.4rem; box-shadow: inset 0 0 0 1px var(--line); margin-top: 0.75rem; }
+    summary { font-weight: 600; cursor: pointer; }
+    details p { margin-top: 0.6rem; color: var(--steel); }
+
+    footer { padding-block: 3rem; color: var(--steel); font-size: 0.875rem; border-top: 1px solid var(--line); }
+    footer p + p { margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+  <header class="wrap top">
+    <a class="brand" href="#"><img src="logo.svg" alt="">YouPipe TV</a>
+    <nav>
+      <a href="#features" class="hide-sm">Features</a>
+      <a href="#install">Install</a>
+      <a href="https://github.com/SanuSanal/YouPipe-TV">GitHub</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="wrap hero">
+      <div>
+        <h1>All of YouTube on your TV. <span class="minus">None of the ads.</span></h1>
+        <p class="lede">YouPipe TV is a free YouTube app for <b>Android TV, Google TV</b> and <b>Samsung TVs</b>. It looks and works like YouTube on TV, with no ads and no account, and your history and subscriptions stay on your TV.</p>
+        <div class="get">
+          <a class="btn btn-primary" id="get-android" href="#android">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z"/></svg>
+            Android TV / Google TV
+          </a>
+          <a class="btn btn-quiet" href="#samsung" data-tab="samsung">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z"/></svg>
+            Samsung TV
+          </a>
+        </div>
+        <p class="get-meta" id="version-line">Free and open source. No account needed.</p>
+      </div>
+      <div class="tv" aria-hidden="true">
+        <div class="tv-frame">
+          <div class="tv-screen">
+            <div class="rail"><i class="logo"></i><i></i><i class="on"></i><i></i><i></i><i class="end"></i></div>
+            <div class="rows">
+              <p class="row-title">Continue watching</p>
+              <div class="cards">
+                <div class="card focus"><div class="th a"><span class="dur">18:42</span></div><div class="ln"></div><div class="ln s"></div></div>
+                <div class="card"><div class="th b"><span class="dur">9:05</span></div><div class="ln"></div><div class="ln s"></div></div>
+                <div class="card"><div class="th c"><span class="dur">1:02:17</span></div><div class="ln"></div><div class="ln s"></div></div>
+                <div class="card"><div class="th d"><span class="dur">24:10</span></div><div class="ln"></div><div class="ln s"></div></div>
+              </div>
+              <p class="row-title">Live now</p>
+              <div class="cards">
+                <div class="card"><div class="th e"><span class="dur live">LIVE</span></div><div class="ln"></div><div class="ln s"></div></div>
+                <div class="card"><div class="th f"><span class="dur live">LIVE</span></div><div class="ln"></div><div class="ln s"></div></div>
+                <div class="card"><div class="th a"><span class="dur live">LIVE</span></div><div class="ln"></div><div class="ln s"></div></div>
+                <div class="card"><div class="th b"><span class="dur live">LIVE</span></div><div class="ln"></div><div class="ln s"></div></div>
+              </div>
+              <p class="row-title">Music</p>
+              <div class="cards">
+                <div class="card"><div class="th c"></div></div><div class="card"><div class="th d"></div></div><div class="card"><div class="th e"></div></div><div class="card"><div class="th f"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tv-stand"></div>
+      </div>
+    </div>
+
+    <section id="features">
+      <div class="wrap">
+        <p class="eyebrow">Made for the big screen</p>
+        <h2>A TV app, not a phone app on a TV</h2>
+        <p class="section-lede">Everything is built for the remote: the left menu, rows of big cards, the TV keyboard and the full-screen player, like YouTube on TV.</p>
+        <div class="features">
+          <div class="feature"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z"/></svg><h3>No ads, no account</h3><p>Videos start straight away. YouPipe talks to YouTube directly from your TV; there's no server in between.</p></div>
+          <div class="feature"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg><h3>Up to 1080p, quick seeking</h3><p>Hold Left or Right to skip through a video with thumbnail previews and chapter names.</p></div>
+          <div class="feature"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5z"/></svg><h3>SponsorBlock</h3><p>Optionally skips sponsors, intros and "like and subscribe" reminders, using the community's segments.</p></div>
+          <div class="feature"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 8H4V6h16v2zm-2-6H6v2h12V2zm4 10v8c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2v-8c0-1.1.9-2 2-2h16c1.1 0 2 .9 2 2zm-6 4l-6-3.27v6.53L16 16z"/></svg><h3>Subscriptions on the TV</h3><p>Subscribe to channels without a Google account. Their new videos show up in Subscriptions and on Home.</p></div>
+          <div class="feature"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg><h3>Continue watching</h3><p>Picks up where you left off, with recommendations from what you watched, Watch later and liked videos.</p></div>
+          <div class="feature"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 4H5c-1.11 0-2 .9-2 2v12c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-8 7H9.5v-.5h-2v3h2V13H11v1c0 .55-.45 1-1 1H7c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1zm7 0h-1.5v-.5h-2v3h2V13H18v1c0 .55-.45 1-1 1h-3c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1z"/></svg><h3>Captions, chapters, comments</h3><p>Captions in any language YouTube has, chapters on the seek bar, the description and comments in a side panel.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="install">
+      <div class="wrap">
+        <p class="eyebrow">Install</p>
+        <h2>Put it on your TV</h2>
+        <p class="section-lede">YouPipe TV isn't in the TV app stores, so you install it yourself. It takes about 10 minutes on Android TV, and a little longer on a Samsung TV.</p>
+        <div class="tabs" role="tablist">
+          <button role="tab" id="tab-android" aria-selected="true" aria-controls="android">Android TV / Google TV</button>
+          <button role="tab" id="tab-samsung" aria-selected="false" aria-controls="samsung">Samsung TV</button>
+        </div>
+
+        <div class="panel" id="android" role="tabpanel" aria-labelledby="tab-android">
+          <p class="needs"><b>You need:</b> an Android TV or Google TV with Android 10 or later (Chromecast with Google TV, NVIDIA Shield, Sony, TCL, Hisense and others), and its remote.</p>
+          <ol class="steps">
+            <li>
+              <h3>Allow apps from outside the Play Store</h3>
+              <ul>
+                <li>Install <b>Downloader</b> (by AFTVnews) from the Play Store on the TV.</li>
+                <li>Open <b>Settings → Apps → Security &amp; restrictions → Unknown sources</b> and turn it on for Downloader. On Google TV it's <b>Settings → Privacy → Security &amp; restrictions → Unknown sources</b>.</li>
+                <li>If you don't see Unknown sources, turn on developer options first: <b>Settings → System → About</b>, then press OK on <b>Android TV OS build</b> seven times.</li>
+              </ul>
+            </li>
+            <li>
+              <h3>Download YouPipe TV</h3>
+              <p>In Downloader, type this address and choose Go:</p>
+              <pre id="apk-url">https://github.com/SanuSanal/YouPipe-TV/releases/latest</pre>
+              <p>Pick the APK for your TV:</p>
+              <ul>
+                <li><code>YouPipe-TV-…-android.apk</code> works on every TV (the safe choice).</li>
+                <li><code>…-arm64-v8a.apk</code> is smaller, for most newer TVs and boxes. If it says "App not installed", use <code>…-armeabi-v7a.apk</code>: some TVs run 32-bit Android.</li>
+              </ul>
+              <div class="apks" id="apk-buttons"></div>
+            </li>
+            <li>
+              <h3>Install and open it</h3>
+              <p>Downloader opens the installer: choose <b>Install</b>, then <b>Open</b>. YouPipe also appears in the row of apps on your TV's home screen.</p>
+            </li>
+          </ol>
+          <details>
+            <summary>Install from a computer instead (adb)</summary>
+            <p>On the TV, turn on developer options (above), then <b>Settings → System → Developer options → USB debugging</b> (on some TVs, <b>Network debugging</b>). Find the TV's IP address under <b>Settings → Network</b>. On the computer, with <a href="https://developer.android.com/tools/releases/platform-tools">Android platform-tools</a>:</p>
+            <pre>adb connect 192.168.1.50:5555
+adb install YouPipe-TV-v1.0.0-android.apk</pre>
+            <p>The TV asks you to allow the computer the first time.</p>
+          </details>
+          <p class="note"><b>Updates:</b> install a newer APK the same way; your history and subscriptions stay. Settings → Version checks whether there's a new one.</p>
+        </div>
+
+        <div class="panel" id="samsung" role="tabpanel" aria-labelledby="tab-samsung" hidden>
+          <p class="needs"><b>You need:</b> a Samsung TV from 2023 or later (Tizen 7.0 or newer), a Windows, Mac or Linux computer on the same network, and a free Samsung account. Samsung only lets you install your own apps in Developer Mode, signed with a certificate made for your TV, so the computer does the install.</p>
+          <ol class="steps">
+            <li>
+              <h3>Install Tizen Studio on the computer</h3>
+              <ul>
+                <li>Download <a href="https://developer.samsung.com/smarttv/develop/getting-started/setting-up-sdk/installing-tv-sdk.html">Tizen Studio</a> (the version with the IDE or the CLI) and install it.</li>
+                <li>Open its <b>Package Manager</b>. Under <b>Extension SDK</b>, install <b>Samsung Certificate Extension</b> and <b>TV Extensions</b>.</li>
+              </ul>
+            </li>
+            <li>
+              <h3>Turn on Developer Mode on the TV</h3>
+              <ul>
+                <li>Open <b>Apps</b> on the TV and type <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> <kbd>4</kbd> <kbd>5</kbd> with the remote's number keys (or the on-screen number pad).</li>
+                <li>Turn <b>Developer mode</b> on and enter your computer's IP address.</li>
+                <li>Restart the TV: hold the power button until it turns off and back on.</li>
+              </ul>
+            </li>
+            <li>
+              <h3>Connect the computer to the TV</h3>
+              <p>Find the TV's IP address (<b>Settings → General → Network → Network status → IP settings</b>), then in a terminal (<code>sdb</code> is in Tizen Studio's <code>tools</code> folder):</p>
+              <pre>sdb connect 192.168.1.50
+sdb devices</pre>
+              <p>The TV should be listed as <code>device</code>. Tizen Studio's Device Manager can do the same.</p>
+            </li>
+            <li>
+              <h3>Make a Samsung certificate for your TV</h3>
+              <ul>
+                <li>In Tizen Studio, open <b>Tools → Certificate Manager</b> and add a new profile. Choose <b>Samsung</b>, then <b>TV</b>, and name it, for example <code>YouPipe</code>.</li>
+                <li>Create an author certificate (any name and password) and sign in with your Samsung account when asked.</li>
+                <li>For the distributor certificate, keep the connected TV ticked: the certificate then works on that TV.</li>
+              </ul>
+              <p>You can reuse a Samsung certificate you already have, if it lists your TV.</p>
+            </li>
+            <li>
+              <h3>Download, sign and install YouPipe TV</h3>
+              <p>Download <code>YouPipe-TV-…-samsung.wgt</code> from the <a href="https://github.com/SanuSanal/YouPipe-TV/releases/latest" id="wgt-link">latest release</a>. Then, in the folder you saved it to (<code>tizen</code> is in Tizen Studio's <code>tools/ide/bin</code> folder):</p>
+              <pre>tizen package -t wgt -s YouPipe -- YouPipe-TV-v1.0.0-samsung.wgt
+tizen install -n YouPipe-TV-v1.0.0-samsung.wgt -s 192.168.1.50:26101</pre>
+              <p>The first command signs the app with your certificate; the second installs it. Use your certificate profile's name after <code>-s</code>.</p>
+            </li>
+            <li>
+              <h3>Open it</h3>
+              <p>YouPipe is in the TV's <b>Apps</b>. You can move it to the home bar from there.</p>
+            </li>
+          </ol>
+          <p class="note"><b>Good to know:</b> the certificate lasts a year and works only on the TVs it lists; renew it the same way. To update, repeat step 5 with the new release; your history and subscriptions stay.</p>
+        </div>
+
+        <table>
+          <thead><tr><th>TV</th><th>Supported</th><th>App</th></tr></thead>
+          <tbody>
+            <tr><td>Android TV, Google TV</td><td>Android 10 or later</td><td>APK: Flutter, with YouPipe's playback engine</td></tr>
+            <tr><td>Samsung</td><td>2023 models and later (Tizen 7.0+)</td><td>Tizen web app (.wgt)</td></tr>
+            <tr><td>Older TVs</td><td>Not supported, even if the app installs</td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="faq">
+      <div class="wrap">
+        <p class="eyebrow">Questions</p>
+        <h2>Good to know</h2>
+        <details><summary>Does it need a Google account?</summary><p>No. YouPipe TV works signed out. Subscriptions, history, Watch later and liked videos are kept on the TV and never leave it.</p></details>
+        <details><summary>Why isn't it in the Play Store or Samsung's store?</summary><p>An ad-free YouTube app wouldn't be accepted. You install it yourself, the same way developers test their own apps.</p></details>
+        <details><summary>Is there a server?</summary><p>No. The app asks YouTube for videos straight from your TV, like YouTube's own app does. Optional extras (SponsorBlock, Return YouTube Dislike) call those projects' public APIs.</p></details>
+        <details><summary>Is there a phone version?</summary><p>Yes: <a href="https://sanusanal.github.io/YouPipe/">YouPipe</a> for Android phones and tablets.</p></details>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <p>YouPipe TV is free and open source. <a href="https://github.com/SanuSanal/YouPipe-TV">Source on GitHub</a>.</p>
+      <p>YouPipe TV is not affiliated with, endorsed by or sponsored by YouTube, Google or Samsung. YouTube is a trademark of Google LLC; Samsung and Tizen are trademarks of Samsung Electronics.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Install tabs.
+    (function () {
+      var tabs = document.querySelectorAll('[role="tab"]');
+      function select(id) {
+        tabs.forEach(function (t) {
+          var on = t.getAttribute('aria-controls') === id;
+          t.setAttribute('aria-selected', on ? 'true' : 'false');
+          document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+        });
+      }
+      tabs.forEach(function (t) { t.addEventListener('click', function () { select(t.getAttribute('aria-controls')); }); });
+      document.querySelectorAll('a[href="#samsung"], a[href="#android"]').forEach(function (a) {
+        a.addEventListener('click', function (e) {
+          e.preventDefault();
+          select(a.getAttribute('href').slice(1));
+          document.getElementById('install').scrollIntoView();
+        });
+      });
+      if (location.hash === '#samsung') select('samsung');
+    })();
+
+    // The latest release's files, from GitHub. Without the API (offline, rate-limited, no release yet) the links
+    // stay on the Releases page.
+    (function () {
+      fetch('https://api.github.com/repos/SanuSanal/YouPipe-TV/releases/latest')
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (rel) {
+          if (!rel || !rel.assets) return;
+          document.getElementById('version-line').textContent = 'Version ' + rel.tag_name.replace(/^v/, '') + '. Free and open source. No account needed.';
+          var box = document.getElementById('apk-buttons');
+          rel.assets.forEach(function (a) {
+            if (/\.apk$/.test(a.name)) {
+              var link = document.createElement('a');
+              link.className = 'btn btn-quiet';
+              link.href = a.browser_download_url;
+              link.textContent = a.name.replace(/^YouPipe-TV-v[\d.]+-/, '').replace(/\.apk$/, '') + ' · ' + Math.round(a.size / 1e6) + ' MB';
+              box.appendChild(link);
+            } else if (/samsung\.wgt$/.test(a.name)) {
+              document.getElementById('wgt-link').href = a.browser_download_url;
+            }
+          });
+        })
+        .catch(function () {});
+    })();
+  </script>
+</body>
+</html>

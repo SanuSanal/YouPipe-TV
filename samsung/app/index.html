@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1920, user-scalable=no" />
+    <meta name="yp-version" content="dev" />
+    <title>YouPipe</title>
+    <link rel="stylesheet" href="css/app.css" />
+  </head>
+  <body>
+    <div id="stage">
+      <div id="app">
+        <div id="video-layer"><video id="video"></video></div>
+        <nav id="sidenav"></nav>
+        <main id="screens"></main>
+        <div id="layers"></div>
+        <div id="toast"></div>
+      </div>
+      <pre id="log" hidden></pre>
+    </div>
+
+    <!-- Samsung's web APIs (screensaver); a desktop browser just skips it. -->
+    <script src="$WEBAPIS/webapis/webapis.js"></script>
+    <script src="lib/shaka-player.compiled.js"></script>
+    <script src="lib/hls.light.min.js"></script>
+    <script src="js/core/log.js"></script>
+    <script src="js/core/net.js"></script>
+    <script src="js/core/store.js"></script>
+    <script src="js/core/format.js"></script>
+    <script src="js/core/platform.js"></script>
+    <script src="js/data/settings.js"></script>
+    <script src="js/yt/parse.js"></script>
+    <script src="js/yt/storyboard.js"></script>
+    <script src="js/yt/innertube.js"></script>
+    <script src="js/yt/manifest.js"></script>
+    <script src="js/yt/captions.js"></script>
+    <script src="js/yt/extras.js"></script>
+    <script src="js/yt/rss.js"></script>
+    <script src="js/data/library.js"></script>
+    <script src="js/data/subsfeed.js"></script>
+    <script src="js/data/home.js"></script>
+    <script src="js/ui/dom.js"></script>
+    <script src="js/ui/focus.js"></script>
+    <script src="js/ui/overlay.js"></script>
+    <script src="js/ui/router.js"></script>
+    <script src="js/ui/sidenav.js"></script>
+    <script src="js/ui/cards.js"></script>
+    <script src="js/ui/keyboard.js"></script>
+    <script src="js/player/player.js"></script>
+    <script src="js/player/watch.js"></script>
+    <script src="js/screens/base.js"></script>
+    <script src="js/screens/home.js"></script>
+    <script src="js/screens/search.js"></script>
+    <script src="js/screens/library.js"></script>
+    <script src="js/screens/channel.js"></script>
+    <script src="js/screens/playlist.js"></script>
+    <script src="js/screens/settings.js"></script>
+    <script src="js/selftest.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>

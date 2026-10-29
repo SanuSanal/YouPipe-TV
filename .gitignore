@@ -1,0 +1,8 @@
+samsung/node_modules/
+samsung/app/lib/
+samsung/app/.buildResult/
+samsung/.sign/
+build/
+*.wgt
+.claude/
+.vscode/

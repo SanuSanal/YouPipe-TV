@@ -1,0 +1,30 @@
+name: youpipe_tv
+description: "YouPipe for Android TV and Google TV"
+publish_to: 'none'
+
+# The release workflow sets the version from the tag (--build-name/--build-number; docs/release.md).
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  dio: ^5.11.1
+  video_player: ^2.14.1
+  shared_preferences: ^2.5.5
+  path_provider: ^2.1.6
+  crypto: ^3.0.7
+  xml: ^7.0.1
+  flutter_svg: ^2.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/logo.svg
