@@ -24,15 +24,20 @@ YouTube for TV's own activation code (youtube.com/activate) is **not used**: it 
 
 ### Samsung (`js/data/account.js`)
 
-- **Sign-in:** the Account screen's **Sign in** navigates the app itself to Google's page. `config.xml` allows it with `tizen:allow-navigation` plus `<access>` for google.com, gstatic.com and googleapis.com.
+- **Sign-in:** the Account screen's **Sign in** navigates the app itself to Google's page. `config.xml` lists google.com, gstatic.com and googleapis.com in `<access>`.
+  - **No `tizen:allow-navigation`:** the app reaches Google's page without it, and with it the TV refuses MediaSource `blob:` URLs (`MEDIA_ERR_SRC_NOT_SUPPORTED`), so no video plays (found on the TV, 2026-10-29).
   - The web engine keeps youtube.com's cookies.
   - Once YouTube's page shows, the user presses Back, or reopens YouPipe if Back does nothing.
-  - On start, a pending sign-in (`yp.accountPending`) makes the app check the account.
+  - **The remote can't move around Google's page:** the TV's web engine has no arrow-key navigation for pages, and no `config.xml` setting turns it on. The email box starts focused, but later steps (the 2-step code box, Next) can't be reached with the arrows. A USB mouse or keyboard on the TV works (Samsung enables the mouse in apps by default). On 2026-10-29 the code box was focused from the PC through the Web Inspector.
+  - **Checks:** the app asks youtube.com (`Account.check`) on start when a sign-in or sign-out is pending (`yp.accountPending`), when it was signed in, or when it hasn't checked for a week (`Account.due`). Signed out, the Account screen also has **Already signed in? Check**.
+  - Found signed in without a pending sign-in (the app's storage was cleared, or the page was opened another way), it imports as after a sign-in.
+  - **Cookies only aren't enough for InnerTube:** `POST youtubei/v1/browse` with `credentials: 'include'` but no SAPISIDHASH answers `logged_in=0` (checked on the TV, 2026-10-29).
 - **Requests: youtube.com's pages, not InnerTube.**
   - The app can't read the cookies (HttpOnly, another origin), so it can't compute SAPISIDHASH, and browsers forbid setting a `Cookie` header.
   - Instead it GETs youtube.com's desktop pages with `credentials: 'include'`: `/`, `/feed/history`, `/feed/playlists`, `/feed/channels` and `/playlist?list=WL|LL`, each with `app=desktop&persist_app=1`.
   - It reads their `ytInitialData`, the same JSON as an InnerTube browse response, with the existing parsers. `"LOGGED_IN":true` in the page says whether the TV is signed in.
-  - Checked 2026-10-29, signed out: these pages answer the Tizen user agent with the desktop page and `ytInitialData`.
+  - Checked 2026-10-29: these pages answer the Tizen user agent with the desktop page and `ytInitialData`.
+  - youtube.com sometimes sends Home as a placeholder grid (`ghostGridViewModel`) that its own script fills in, so `recommended()` fetches again when it gets fewer than 8 videos.
 - **Read-only:** likes, Watch later and subscriptions changed in YouPipe stay on the TV.
   - Lists stop at their first page; youtube.com's playlist page holds 100 videos.
   - Playlists from YouTube playlists open through signed-out InnerTube, so private playlists don't open.
@@ -54,9 +59,11 @@ YouTube for TV's own activation code (youtube.com/activate) is **not used**: it 
   - The page opens and the remote moves around it; Back returns to YouPipe.
   - The signed-in calls are YouPipe's, which were checked with a real account on phones (2026-10-04).
   - Signing in on the TV itself is not tested yet.
-- **Samsung:** not tried on the TV yet.
-  - In desktop Chromium, the screens, rows and the `ytInitialData` parsing work (on public pages).
-  - Unknown until tried on the TV:
-    - whether the app can navigate to Google's page and back;
-    - whether the remote can move around Google's page;
-    - whether the web engine sends youtube.com's cookies with the app's requests.
+- **Samsung (signed in on the user's TV, 2026-10-29):** works.
+  - The menu shows the account photo; Home shows the account's recommendations.
+  - Library: YouTube history (168), Watch later, liked videos (78) and 7 playlists.
+  - Import: 31 subscriptions and 167 history videos.
+  - The playback self test still passes 8/8.
+  - Problems:
+    - The remote can't reach the 2-step code box (above).
+    - After the sign-in the app stayed on YouTube's page; it was reopened from the PC. Whether Back returns to YouPipe isn't confirmed.

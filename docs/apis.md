@@ -26,7 +26,7 @@ Signed in on Android, every InnerTube call carries the session cookie and `Autho
 | Call | Samsung | Notes |
 |---|---|---|
 | `GET www.youtube.com/`, `/feed/history`, `/feed/playlists`, `/feed/channels`, `/playlist?list=WL\|LL` (`app=desktop&persist_app=1`, `credentials: 'include'`) | `Account.check`, `recommended`, `history`, `playlists`, `subscriptions`, `playlist` | `ytInitialData` from the HTML; about 1 MB each |
-| Navigation to `accounts.google.com/ServiceLogin…` and `accounts.google.com/Logout` | `Account.signIn`, `signOut` | `tizen:allow-navigation`; the page loads from google.com, gstatic.com, googleapis.com |
+| Navigation to `accounts.google.com/ServiceLogin…` and `accounts.google.com/Logout` | `Account.signIn`, `signOut` | The page loads from google.com, gstatic.com, googleapis.com (`<access>`); no `tizen:allow-navigation` (account.md) |
 
 ## Media
 

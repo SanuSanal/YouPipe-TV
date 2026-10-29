@@ -834,6 +834,8 @@ img.failed {
   color: var(--text-2);
 }
 .account-buttons {
+  display: flex;
+  gap: 24px;
   margin-top: 28px;
 }
 .account-head {

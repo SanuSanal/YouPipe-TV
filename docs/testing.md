@@ -66,7 +66,7 @@ From `samsung/`:
 - **Web Inspector:** the script prints `http://127.0.0.1:<port>`. Open it in Chrome to debug. `node tools/tv-selftest.mjs <port> "<expression>"` evaluates an expression in the app.
 - **By hand:** Settings → Run the self test. The red button toggles the log.
 - **A release package:** `tizen package -t wgt -s <profile> -- <file>.wgt` signs an unsigned `.wgt` from GitHub Releases (checked 2026-10-29), then `tizen install -n <file>.wgt -s <TV-IP>:26101`.
-- The spike's self test ran 7/7 on the TV on 2026-10-28 (spike.md). The full app hasn't been on the TV yet.
+- The spike's self test ran 7/7 on the TV on 2026-10-28 (spike.md). The full app ran 8/8 on the TV on 2026-10-29 (1080p DASH, muxed 360p, live).
 
 ## Android TV app
 

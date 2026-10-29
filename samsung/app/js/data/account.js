@@ -36,6 +36,14 @@ var Account = (function () {
     return state.photo || null;
   }
 
+  /**
+   * True when the sign-in hasn't been checked for a week, or ever. The cookies outlive the app's storage (a
+   * reinstall clears it), so a signed-out TV still asks youtube.com now and then.
+   */
+  function due() {
+    return !state.at || Date.now() - state.at > 7 * 24 * 60 * 60 * 1000;
+  }
+
   /** youtube.com's desktop page at [path], fetched with the account's cookies: {loggedIn, data}. */
   async function page(path) {
     var s = Settings.get();
@@ -97,10 +105,15 @@ var Account = (function () {
 
   // The account's lists ---------------------------------------------------------------------------------------------
 
+  /**
+   * The account's Home. youtube.com sometimes sends Home as a placeholder grid that its own script fills in later
+   * (seen on the TV, 2026-10-29), so a near-empty page is fetched once more.
+   */
   async function recommended() {
-    if (home && Date.now() - home.at < 60 * 1000) return home.items;
-    var p = await page('/');
-    return videos(p.data);
+    if (home && home.items.length >= 8 && Date.now() - home.at < 60 * 1000) return home.items;
+    var items = videos((await page('/')).data);
+    if (items.length < 8) items = videos((await page('/')).data);
+    return items;
   }
 
   async function history() {
@@ -132,6 +145,7 @@ var Account = (function () {
     onChange: onChange,
     signedIn: signedIn,
     photo: photo,
+    due: due,
     check: check,
     signIn: signIn,
     signOut: signOut,

@@ -54,7 +54,21 @@ var AccountScreen = (function () {
               'to type. On this TV your account is only read: likes, Watch later and subscriptions you change in ' +
               'YouPipe stay on the TV.',
           }),
-          h('div.account-buttons.vline', [button('Sign in', 'account', signIn, true)]),
+          h('div.account-buttons.vline', { 'data-group': 'account-buttons' }, [
+            button('Sign in', 'account', signIn, true),
+            // Signed in on Google's page but YouPipe didn't notice (opened some other way): ask youtube.com.
+            button('Already signed in? Check', 'replay', () =>
+              Account.check().then(
+                (ok) => {
+                  if (!ok) return Overlay.toast('This TV is not signed in to YouTube');
+                  Overlay.toast('Signed in to YouTube');
+                  Sidenav.reset('home');
+                  importAll();
+                },
+                (e) => Overlay.toast("Couldn't reach YouTube: " + e.message),
+              ),
+            ),
+          ]),
         ]);
         return;
       }

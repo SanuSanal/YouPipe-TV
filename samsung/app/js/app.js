@@ -108,17 +108,18 @@ var App = (function () {
   }
 
   /**
-   * Back from Google's sign-in page, or signed in before: ask youtube.com whether the TV is signed in. Home starts
-   * over when that changed, and a fresh sign-in imports the account's subscriptions and history.
+   * Back from Google's sign-in page, signed in before, or not checked for a week: ask youtube.com whether the TV is
+   * signed in. Home starts over when that changed, and a fresh sign-in imports the account's subscriptions and history.
    */
   function checkAccount() {
     var returning = Account.returning();
-    if (!returning && !Account.signedIn()) return;
+    if (!returning && !Account.signedIn() && !Account.due()) return;
     var was = Account.signedIn();
     Account.check()
       .then((now) => {
         if (now !== was) Sidenav.go('home', { fresh: true });
-        if (returning === 'in' && now) {
+        // Newly signed in, or found signed in after the app's storage was cleared: bring the account's things over.
+        if (now && (returning === 'in' || !was)) {
           Overlay.toast('Signed in to YouTube');
           AccountScreen.importAll();
         } else if (returning === 'in') {

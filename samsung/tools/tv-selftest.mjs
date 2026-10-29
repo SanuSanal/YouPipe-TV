@@ -41,7 +41,8 @@ ws.onmessage = (event) => {
     if (!text.startsWith('YP|')) return;
     console.log(text);
     const done = text.match(/SELFTEST done: (\d+)\/(\d+)/);
-    if (done) finish(null, done[1] === done[2] ? 0 : 1);
+    // With an expression, an earlier run's "done" line (replayed by Runtime.enable) doesn't end it.
+    if (done && !expression) finish(null, done[1] === done[2] ? 0 : 1);
   } else if (message.method === 'Runtime.exceptionThrown') {
     const details = message.params.exceptionDetails;
     console.log('exception: ' + (details.exception?.description ?? details.text));
@@ -51,7 +52,10 @@ ws.onmessage = (event) => {
 ws.onopen = async () => {
   await send('Runtime.enable');
   const reply = await send('Runtime.evaluate', {
-    expression: expression ?? 'SelfTest.run()',
+    // Right after launch the app may still be starting (the player isn't ready, no screen yet): wait for it.
+    expression:
+      expression ??
+      '(async () => { while (!(window.Player && Player.video && Router.top())) await new Promise((r) => setTimeout(r, 250)); return SelfTest.run(); })()',
     awaitPromise: true,
     returnByValue: true,
   });
