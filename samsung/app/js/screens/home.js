@@ -8,6 +8,8 @@ var HomeScreen = (function () {
     var keysAtBuild = 0;
     var cwRow = null;
     var historyChanged = false;
+    // The rows in order, each {el, settled}: settled once it loaded or failed.
+    var rows = [];
 
     Library.onChange((what) => {
       if (what === 'history') historyChanged = true;
@@ -19,21 +21,25 @@ var HomeScreen = (function () {
       keysAtBuild = App.keyCount;
       historyChanged = false;
       cwRow = null;
+      rows = [];
       var tasks = Home.sources().map((src) => {
         var row = Cards.row({ title: src.title, more: src.more });
         row.placeholders();
         if (src.title === 'Continue watching') cwRow = row;
         s.content.appendChild(row.el);
+        var entry = { el: row.el, settled: false };
+        rows.push(entry);
         return async () => {
           try {
             var items = await src.load();
             row.add(items);
             if (!items.length) row.el.remove();
-            else maybeFocus();
           } catch (e) {
             Log.add('home row "' + src.title + '" failed: ' + e.message);
             row.el.remove();
           }
+          entry.settled = true;
+          maybeFocus();
         };
       });
       Screens.queue(tasks, 3).then(() => {
@@ -47,16 +53,21 @@ var HomeScreen = (function () {
     }
 
     /**
-     * Focuses the first card of the first row that has loaded. Until the user presses a key, a row above the
-     * focused one that loads later takes the focus, so Home always starts at its top row.
+     * Focuses the top row's first card once it's known which row is on top: every row above it has loaded or gone.
+     * A row lower down that loads first waits, so focus never jumps up when a slower row arrives (Recommended).
      */
     function maybeFocus() {
       if (s.el.hidden || Overlay.isOpen()) return;
       var f = Focus.current;
-      var untouched = App.keyCount === keysAtBuild;
-      if (!untouched && f && f.isConnected && (s.el.contains(f) || Sidenav.contains(f) || Topbar.contains(f))) return;
+      if (f && f.isConnected && s.el.contains(f)) return;
+      var touched = App.keyCount !== keysAtBuild;
+      if (touched && f && f.isConnected && (Sidenav.contains(f) || Topbar.contains(f))) return;
+      for (var i = 0; i < rows.length; i++) {
+        if (!rows[i].settled) return;
+        if (rows[i].el.isConnected) break;
+      }
       var first = s.content.querySelector('.focusable');
-      if (first && first !== f) Focus.set(first, { instant: true });
+      if (first) Focus.set(first, { instant: true });
     }
 
     s.firstFocus = () => s.content.querySelector('.focusable');

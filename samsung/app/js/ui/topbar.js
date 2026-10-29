@@ -1,37 +1,24 @@
-// The bar above Home, Subscriptions and Library, like YouTube on TV: the account at the top left, then a search box
-// and the YouPipe name. Up from a screen's first row reaches it, and Up stops there. It scrolls away with the screen.
+// The bar above Home, Subscriptions and Library, like YouTube on TV: a search box and the YouPipe name (the account
+// sits at the top of the left menu). Up from a screen's first row reaches it, and Up stops there. It scrolls away with
+// the screen.
 var Topbar = (function () {
   var SECTIONS = { home: 1, subscriptions: 1, library: 1 };
   // Where a screen's first row starts: below the bar (docs/ui.md).
   var TOP = 152;
   var el = null;
-  var account = null;
 
   function build(container) {
     el = container;
     var h = Dom.h;
-    account = h('div.topbar-account.focusable', { data: { label: 'account' } });
-    account._activate = () => Sidenav.go('account');
-    account.addEventListener('click', account._activate);
     var search = h('div.topbar-search.focusable', [Dom.icon('search'), h('span', { text: 'Search' })]);
     search._activate = () => Sidenav.go('search');
     search.addEventListener('click', search._activate);
     var bar = h('div.topbar-items', { 'data-group': 'topbar' }, [
-      account,
       search,
       h('div.topbar-brand', [Dom.img('logo.svg', 'topbar-logo'), h('span', { text: 'YouPipe' })]),
     ]);
     el.appendChild(bar);
-    showAccount();
-    Account.onChange(showAccount);
     Focus.onChange(update);
-  }
-
-  /** The account's photo once signed in; the person icon before. */
-  function showAccount() {
-    var photo = Account.signedIn() && Account.photo();
-    Dom.clear(account);
-    account.appendChild(photo ? Dom.img(photo, 'topbar-avatar') : Dom.icon('account'));
   }
 
   /** Gives a section's screen room for the bar; its first row then keeps the page at the top. */

@@ -154,8 +154,15 @@ img.failed {
 #app.fullscreen #nav-shade {
   display: none;
 }
-.nav-space {
-  height: 120px;
+/* Level with the top bar's search box; Search below starts where the rail always did (160 px). */
+.nav-account {
+  margin-bottom: 40px;
+}
+.nav-avatar {
+  width: 44px;
+  height: 44px;
+  margin: 0 -4px;
+  border-radius: 50%;
   flex: none;
 }
 .nav-items {
@@ -894,32 +901,10 @@ img.failed {
   align-items: center;
   height: 72px;
   margin-top: 40px;
+}
+.topbar-search,
+.topbar-brand {
   pointer-events: auto;
-}
-.topbar-account {
-  width: 72px;
-  height: 72px;
-  margin-left: 12px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-2);
-  transition: transform 0.15s;
-}
-.topbar-account .icon {
-  width: 48px;
-  height: 48px;
-}
-.topbar-avatar {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-}
-.topbar-account.focused {
-  background: var(--focus-bg);
-  color: var(--focus-fg);
-  transform: scale(1.08);
 }
 .topbar-search {
   display: flex;
@@ -927,7 +912,7 @@ img.failed {
   gap: 20px;
   width: 760px;
   height: 72px;
-  margin-left: calc(var(--nav-w) + var(--pad) - 84px);
+  margin-left: calc(var(--nav-w) + var(--pad));
   padding: 0 28px;
   border-radius: 36px;
   background: var(--surface);

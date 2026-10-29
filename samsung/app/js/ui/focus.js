@@ -138,8 +138,16 @@ var Focus = (function () {
     var horizontal = dir === 'left' || dir === 'right';
     var container = horizontal ? current.closest('.hscroll') : current.closest('.vlist');
     var target = container && root.contains(container) ? siblingIn(container, dir) : null;
+    // Up and Down stop at the menu's ends (the account, Settings) instead of reaching a row above or below.
+    if (!target && !horizontal && Sidenav.contains(current)) return false;
     if (!target) {
-      target = nearest(dir, candidates(root));
+      // The left menu is entered only by Left from a screen's edge (App → Sidenav.enter), never by Up or Down: its
+      // Search icon sits just above-left of the first row and would otherwise beat the top bar's Search. The top bar
+      // is reached only by Up, so Left from a first card opens the menu rather than the account.
+      var list = candidates(root);
+      if (!Sidenav.contains(current)) list = list.filter((el) => !Sidenav.contains(el));
+      if (dir !== 'up' && !Topbar.contains(current)) list = list.filter((el) => !Topbar.contains(el));
+      target = nearest(dir, list);
       // Entering another group returns to where it was left.
       var g = groupOf(target);
       if (target && g && g !== groupOf(current) && g._last && g._last !== target && g._last.isConnected && visible(g._last) && root.contains(g._last)) {

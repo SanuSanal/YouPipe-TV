@@ -87,12 +87,11 @@ class _HomeScreenState extends State<HomeScreen> {
               r.items = items;
               r.loading = false;
             });
-            if (items.isNotEmpty) Splash.done();
-            _focusFirstIfIdle();
           } catch (e) {
             debugPrint('YouPipe: home row "${r.source.title}" failed: $e');
             if (mounted) setState(() => r.loading = false);
           }
+          _focusTopRow();
         },
     ]).then((_) {
       if (mounted && _rows.every((r) => r.items.isEmpty)) setState(() => _failed = true);
@@ -100,12 +99,18 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  /// Until the user presses a key, focus sits on the top row that has loaded, so Home starts at its top row even
-  /// when a lower row loads first.
-  void _focusFirstIfIdle() => WidgetsBinding.instance.addPostFrameCallback((_) {
-    if (!mounted || KeyCounter.count != _keysAtBuild || !TickerMode.valuesOf(context).enabled) return;
-    final first = _rows.where((r) => r.items.isNotEmpty).firstOrNull;
-    if (first != null && !first.focus.hasFocus) first.focus.requestFocus();
+  /// Focuses the top row once it's known which row is on top: every row above it has loaded or failed. A lower row
+  /// that loads first waits, so focus never jumps up when a slower row (Recommended) arrives. The splash waits too.
+  void _focusTopRow() => WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (!mounted) return;
+    for (final r in _rows) {
+      if (r.loading) return;
+      if (r.items.isEmpty) continue;
+      Splash.done();
+      final idle = KeyCounter.count == _keysAtBuild && !_rows.any((x) => x.focus.hasFocus);
+      if (idle && TickerMode.valuesOf(context).enabled) r.focus.requestFocus();
+      return;
+    }
   });
 
   int _keysAtBuild = 0;

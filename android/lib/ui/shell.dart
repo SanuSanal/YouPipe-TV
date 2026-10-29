@@ -71,7 +71,7 @@ class NavRail extends StatefulWidget {
 }
 
 class _NavRailState extends State<NavRail> {
-  int _index = 1;
+  int _index = 2;
   bool _focused = false;
   late final _select = SelectHandler(() => widget.onOpen(widget.sections[_index].$1), null);
 
@@ -130,9 +130,10 @@ class _NavRailState extends State<NavRail> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // The account and the YouPipe name sit in the top bar, above the rail.
-                  const SizedBox(height: 120),
+                  // The account sits apart at the top, level with the top bar's search box; Search below starts where
+                  // the rail always did. Settings sits at the bottom, like YouTube's.
                   for (var i = 0; i < sections.length; i++) ...[
+                    if (i == 1) const SizedBox(height: 40),
                     if (i == sections.length - 1) const Spacer(),
                     _item(sections[i], i),
                   ],
@@ -149,6 +150,8 @@ class _NavRailState extends State<NavRail> {
     final focused = _focused && i == _index;
     final active = s.$1 == widget.active;
     final color = focused ? Tv.focusFg : (active ? Tv.text : Tv.text2);
+    // The account's photo once signed in; the person icon before.
+    final photo = s.$1 == 'account' && Account.instance.signedIn ? Account.instance.info?.photo : null;
     return GestureDetector(
       onTap: () => widget.onOpen(s.$1),
       // The same size open or closed (only the focused one, in the open menu, has a fill), so opening lays nothing out.
@@ -164,7 +167,13 @@ class _NavRailState extends State<NavRail> {
         ),
         child: Row(
           children: [
-            Icon(s.$3, size: 36, color: color),
+            if (photo != null)
+              Transform.scale(
+                scale: 44 / 36,
+                child: ClipOval(child: NetImage(photo, width: 36, height: 36)),
+              )
+            else
+              Icon(s.$3, size: 36, color: color),
             const SizedBox(width: 28),
             AnimatedOpacity(
               opacity: _focused ? 1 : 0,
@@ -189,8 +198,9 @@ class Shell extends StatefulWidget {
 }
 
 class ShellState extends State<Shell> {
-  /// The menu's sections; the account opens from the top bar.
+  /// The menu's sections; the account sits at the top, where it stays while the page scrolls.
   static const sections = [
+    ('account', 'Account', Icons.account_circle_outlined),
     ('search', 'Search', Icons.search),
     ('home', 'Home', Icons.home_filled),
     ('subscriptions', 'Subscriptions', Icons.subscriptions_outlined),
@@ -204,9 +214,7 @@ class ShellState extends State<Shell> {
   static const _system = MethodChannel('youpipe/system');
 
   final _nav = FocusNode(debugLabel: 'nav');
-  // Left from a screen goes to the menu, never to the top bar: only Up reaches the bar (below), and the bar moves
-  // between its two stops itself.
-  final _topAccount = FocusNode(debugLabel: 'top account', skipTraversal: true);
+  // Left from a screen goes to the menu, never to the top bar: only Up reaches the bar (below).
   final _topSearch = FocusNode(debugLabel: 'top search', skipTraversal: true);
   final _roots = {for (final k in _keys) k: FocusNode(debugLabel: k, skipTraversal: true)};
   final _visited = <String>{'home'};
@@ -227,7 +235,6 @@ class ShellState extends State<Shell> {
   void dispose() {
     FocusManager.instance.removeListener(_remember);
     _nav.dispose();
-    _topAccount.dispose();
     _topSearch.dispose();
     _topbarY.dispose();
     for (final n in _roots.values) {
@@ -237,7 +244,7 @@ class ShellState extends State<Shell> {
   }
 
   bool get _topbarShown => _withTopbar.contains(_active);
-  bool get _inTopbar => _topAccount.hasFocus || _topSearch.hasFocus;
+  bool get _inTopbar => _topSearch.hasFocus;
 
   /// Remembers where focus was in each section, for Right from the menu.
   void _remember() {
@@ -353,7 +360,11 @@ class ShellState extends State<Shell> {
             left: 0,
             top: 0,
             bottom: 0,
-            child: NavRail(sections: sections, active: _active, onOpen: open, onExit: focusScreen, focusNode: _nav),
+            child: ListenableBuilder(
+              listenable: Account.instance,
+              builder: (context, _) =>
+                  NavRail(sections: sections, active: _active, onOpen: open, onExit: focusScreen, focusNode: _nav),
+            ),
           ),
           if (_topbarShown)
             Positioned(
@@ -366,31 +377,17 @@ class ShellState extends State<Shell> {
                 builder: (context, y, child) => Transform.translate(offset: Offset(0, -y), child: child),
                 child: TvKeys(
                   spatial: false,
-                  // Left and Right move between the account and Search, Left from the account opens the menu,
-                  // Down returns to the screen, and Up stops here.
+                  // Left opens the menu, Down returns to the screen, and Up and Right stop here.
                   onEdge: (dir) {
-                    switch (dir) {
-                      case TraversalDirection.left:
-                        _topSearch.hasFocus ? _topAccount.requestFocus() : _nav.requestFocus();
-                      case TraversalDirection.right:
-                        if (_topAccount.hasFocus) _topSearch.requestFocus();
-                      case TraversalDirection.down:
-                        focusScreen();
-                      case TraversalDirection.up:
-                        break;
-                    }
+                    if (dir == TraversalDirection.left) _nav.requestFocus();
+                    if (dir == TraversalDirection.down) focusScreen();
                     return true;
                   },
                   child: FocusTraversalGroup(
                     child: ListenableBuilder(
-                      listenable: Listenable.merge([Account.instance, _nav]),
-                      builder: (context, _) => TopBar(
-                        accountNode: _topAccount,
-                        searchNode: _topSearch,
-                        menuOpen: _nav.hasFocus,
-                        onAccount: () => open('account'),
-                        onSearch: () => open('search'),
-                      ),
+                      listenable: _nav,
+                      builder: (context, _) =>
+                          TopBar(searchNode: _topSearch, menuOpen: _nav.hasFocus, onSearch: () => open('search')),
                     ),
                   ),
                 ),
@@ -403,54 +400,25 @@ class ShellState extends State<Shell> {
   );
 }
 
-/// The bar above Home, Subscriptions and Library, like YouTube on TV: the account at the top left, then a search box
-/// and the YouPipe name. It scrolls away with the page.
+/// The bar above Home, Subscriptions and Library, like YouTube on TV: a search box and the YouPipe name (the account
+/// sits at the top of the left menu). It scrolls away with the page.
 class TopBar extends StatelessWidget {
-  const TopBar({
-    super.key,
-    required this.accountNode,
-    required this.searchNode,
-    required this.menuOpen,
-    required this.onAccount,
-    required this.onSearch,
-  });
+  const TopBar({super.key, required this.searchNode, required this.menuOpen, required this.onSearch});
 
-  final FocusNode accountNode;
   final FocusNode searchNode;
 
   /// The open menu's shadow covers the screen; the search box steps back with it.
   final bool menuOpen;
-  final VoidCallback onAccount;
   final VoidCallback onSearch;
 
   @override
   Widget build(BuildContext context) {
-    final photo = Account.instance.signedIn ? Account.instance.info?.photo : null;
     return Padding(
       padding: const EdgeInsets.only(top: 40),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(width: 12),
-          TvFocusable(
-            focusNode: accountNode,
-            scrollAlignment: null,
-            onSelect: onAccount,
-            builder: (context, focused) => AnimatedScale(
-              scale: focused ? 1.08 : 1,
-              duration: const Duration(milliseconds: 150),
-              child: Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(color: focused ? Tv.focusBg : Colors.transparent, shape: BoxShape.circle),
-                alignment: Alignment.center,
-                child: photo != null
-                    ? ClipOval(child: NetImage(photo, width: 56, height: 56))
-                    : Icon(Icons.account_circle_outlined, size: 48, color: focused ? Tv.focusFg : Tv.text2),
-              ),
-            ),
-          ),
-          const SizedBox(width: Tv.navWidth + Tv.pad - 84),
+          const SizedBox(width: Tv.navWidth + Tv.pad),
           AnimatedOpacity(
             opacity: menuOpen ? 0 : 1,
             duration: Tv.slide,

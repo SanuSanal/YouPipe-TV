@@ -1,7 +1,8 @@
-// The left menu, like YouTube on TV: a rail of icons that opens with labels while it has focus. The account and the
-// YouPipe name sit in the top bar (topbar.js); the rail starts below it.
+// The left menu, like YouTube on TV: a rail of icons that opens with labels while it has focus. The account sits at
+// its top, level with the top bar, and stays there while the page scrolls.
 var Sidenav = (function () {
   var ITEMS = [
+    ['account', 'Account', 'account'],
     ['search', 'Search', 'search'],
     ['home', 'Home', 'home'],
     ['subscriptions', 'Subscriptions', 'subscriptions'],
@@ -24,9 +25,12 @@ var Sidenav = (function () {
       buttons[it[0]] = b;
       list.appendChild(b);
     });
-    // Settings sits at the bottom, like YouTube's.
+    // The account sits apart at the top and Settings at the bottom, like YouTube's.
+    buttons.account.classList.add('nav-account');
     list.lastChild.classList.add('nav-bottom');
-    Dom.append(el, [h('div.nav-panel'), h('div.nav-space'), list]);
+    Dom.append(el, [h('div.nav-panel'), list]);
+    showAccount();
+    Account.onChange(showAccount);
     // Only the menu, its shade and the top bar change when it opens, not the whole app, so the TV restyles little.
     var shade = document.getElementById('nav-shade');
     var topbar = document.getElementById('topbar');
@@ -37,6 +41,13 @@ var Sidenav = (function () {
       shade.classList.toggle('open', open);
       topbar.classList.toggle('nav-open', open);
     });
+  }
+
+  /** The account's photo once signed in; the person icon before. */
+  function showAccount() {
+    var photo = Account.signedIn() && Account.photo();
+    var b = buttons.account;
+    b.replaceChild(photo ? Dom.img(photo, 'nav-avatar') : Dom.icon('account'), b.firstChild);
   }
 
   /** Registers the factory for a section's root screen. */

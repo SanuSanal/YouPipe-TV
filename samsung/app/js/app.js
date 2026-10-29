@@ -110,12 +110,12 @@ var App = (function () {
     if (/[?&]selftest\b/.test(location.search)) SelfTest.run();
   }
 
-  /** The splash stays until Home shows its first row (or a message), at most 8 s. */
+  /** The splash stays until Home focuses its top row (or shows a message), at most 8 s. */
   function hideSplash() {
     var splash = document.getElementById('splash');
     var started = Date.now();
     var timer = setInterval(() => {
-      var ready = document.querySelector('.screen-home .card:not(.placeholder), .screen-home .message');
+      var ready = document.querySelector('.screen-home .card.focused, .screen-home .message');
       if (!ready && Date.now() - started < 8000) return;
       clearInterval(timer);
       splash.classList.add('done');
