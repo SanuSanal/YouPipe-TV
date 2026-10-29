@@ -414,6 +414,7 @@ class TvGrid extends StatefulWidget {
     this.onNearEnd,
     this.focusNode,
     this.autofocus = false,
+    this.onReveal,
   });
 
   final List<YtItem> items;
@@ -423,6 +424,9 @@ class TvGrid extends StatefulWidget {
   final VoidCallback? onNearEnd;
   final FocusNode? focusNode;
   final bool autofocus;
+
+  /// Brings the focused card (its context) into view; by default its page scrolls to it.
+  final void Function(BuildContext card)? onReveal;
 
   @override
   State<TvGrid> createState() => _TvGridState();
@@ -445,7 +449,13 @@ class _TvGridState extends State<TvGrid> {
 
   void _reveal() => WidgetsBinding.instance.addPostFrameCallback((_) {
     final c = _focusKey.currentContext;
-    if (c != null) Scrollable.ensureVisible(c, alignment: 0.15, duration: Tv.slide, curve: Curves.easeOut);
+    if (c == null) return;
+    final reveal = widget.onReveal;
+    if (reveal != null) {
+      reveal(c);
+    } else {
+      Scrollable.ensureVisible(c, alignment: 0.15, duration: Tv.slide, curve: Curves.easeOut);
+    }
   });
 
   KeyEventResult _move(int to) {

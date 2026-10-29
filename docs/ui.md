@@ -46,7 +46,7 @@ Both lay out a **1920×1080 stage** with the same pixel sizes:
 - **Seek bar:** Left/Right move a pending position in 10 s steps, 30 s after 8 quick presses, 60 s after 20, with the storyboard frame, chapter name and time above the knob; it's applied 800 ms after the last press or on OK. Chapter ticks and SponsorBlock segments (in their category colours) are drawn on the bar. Up from the bar hides the controls.
 - **Top:** title, channel avatar, name and subscribers, views • date.
 - **Buttons:** previous, play/pause, next; then like (local, with YouTube's count), dislike (Return YouTube Dislike's estimate), Save (Watch later), Subscribe, captions, settings (quality, speed, captions, autoplay), info (chapters, then the description), comments, the channel.
-- **Up next:** below the buttons; focusing it slides the controls up. The rest of a playlist when playing one, else related videos.
+- **Up next:** below the buttons, a grid of the usual 540 px cards, 3 across (up to 30). Focusing it fades out the title at the top and slides the controls up so the focused card's row sits 72 px above the screen's bottom edge; Down moves row by row, Up from its first row returns to the buttons. The rest of a playlist when playing one, else related videos.
 - **Autoplay:** at the end, a playlist plays its next video; otherwise, with Autoplay on, a 5 s "Up next" countdown (OK plays now, Back cancels).
 - **Resume:** a video watched before resumes where it was (if more than 10 s in and more than 30 s from the end), with a toast.
 - **SponsorBlock:** "skip" segments are skipped once each, with a "Skipped sponsor" toast.

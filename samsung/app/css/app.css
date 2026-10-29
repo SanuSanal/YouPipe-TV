@@ -1361,8 +1361,8 @@ img.failed {
 .screen-watch.controls .watch-controls {
   opacity: 1;
 }
-.screen-watch.upnext .watch-controls {
-  transform: translateY(-420px);
+.screen-watch.upnext .watch-top {
+  opacity: 0;
 }
 .screen-watch.counting .watch-controls,
 .screen-watch.counting .watch-top {
@@ -1546,16 +1546,6 @@ img.failed {
 }
 .watch-upnext {
   margin-top: 56px;
-  /* Over the video, Up next keeps smaller cards so more of it shows. */
-  --card-w: 372px;
-}
-.watch-upnext .card-title {
-  font-size: 26px;
-  line-height: 34px;
-}
-.watch-upnext .card-meta {
-  font-size: 22px;
-  line-height: 29px;
 }
 .captions {
   position: absolute;

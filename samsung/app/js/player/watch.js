@@ -1,7 +1,7 @@
 // The player screen, like YouTube on TV (docs/ui.md):
 // - The video fills the screen. OK, Up or Down shows the controls; Left/Right seek straight away with a preview.
 // - Controls: title and channel at the top; the seek bar (storyboard preview, chapters, SponsorBlock segments);
-//   a row of buttons; and below it the Up next row (the queue, or related videos).
+//   a row of buttons; and below it Up next (the queue, or related videos) as a grid, 3 across.
 // - Back hides the controls, then leaves the player.
 var Watch = (function () {
   var h = Dom.h;
@@ -442,8 +442,7 @@ var Watch = (function () {
     var q = state.queue;
     var items = q ? q.items.slice(q.index + 1) : state.related;
     if (!items.length) return;
-    var row = Cards.row({
-      title: q ? 'Up next in ' + (q.title || 'this playlist') : 'Up next',
+    var grid = Cards.grid({
       cardOpts: {
         play: (it) => {
           if (q) {
@@ -453,8 +452,8 @@ var Watch = (function () {
         },
       },
     });
-    row.add(items.slice(0, 30));
-    ui.upNext.appendChild(row.el);
+    grid.add(items.slice(0, 30));
+    Dom.append(ui.upNext, [el('div.row-title', { text: q ? 'Up next in ' + (q.title || 'this playlist') : 'Up next' }), grid.el]);
   }
 
   function chapterAt(t) {
@@ -789,9 +788,17 @@ var Watch = (function () {
     return false; // the Router pops the player
   }
 
-  // Focus in the Up next row slides the controls up to show it.
+  // Focus in Up next slides the controls up until the focused card's row sits above the screen's bottom edge; the title
+  // at the top fades out meanwhile, as the controls slide up past it.
+  var BOTTOM = 1080 - 72;
   Focus.onChange((now) => {
-    if (s) s.el.classList.toggle('upnext', !!now && ui.upNext.contains(now));
+    if (!s) return;
+    var inside = !!now && ui.upNext.contains(now);
+    var top = ui.controls.offsetTop;
+    for (var n = now; inside && n && n !== ui.controls; n = n.offsetParent) top += n.offsetTop;
+    var y = inside ? Math.max(0, top + now.offsetHeight - BOTTOM) : 0;
+    s.el.classList.toggle('upnext', inside);
+    ui.controls.style.transform = y ? 'translateY(' + -y + 'px)' : '';
   });
 
   return {

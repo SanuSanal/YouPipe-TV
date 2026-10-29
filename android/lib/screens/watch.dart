@@ -22,7 +22,7 @@ import '../ui/theme.dart';
 /// The player screen, like YouTube on TV (docs/ui.md):
 /// - The video fills the screen. OK, Up or Down shows the controls; Left/Right seek straight away with a preview.
 /// - Controls: title and channel at the top; the seek bar (storyboard preview, chapters, SponsorBlock segments); a
-///   row of buttons; and below it the Up next row (the queue, or related videos).
+///   row of buttons; and below it Up next (the queue, or related videos) as a grid, 3 across.
 /// - Back hides the controls, then leaves the player.
 class WatchScreen extends StatefulWidget {
   const WatchScreen({super.key, required this.video, this.queue});
@@ -74,6 +74,8 @@ class _WatchScreenState extends State<WatchScreen> {
 
   bool _controls = true;
   bool _upNextFocused = false;
+  final _column = GlobalKey();
+  double _slide = 0;
   Duration? _scrubTo;
   int _scrubCount = 0;
   DateTime _lastScrub = DateTime(0);
@@ -730,8 +732,9 @@ class _WatchScreenState extends State<WatchScreen> {
     right: 96,
     top: 64,
     child: IgnorePointer(
+      // It fades out while Up next has focus, as the controls slide up past it.
       child: AnimatedOpacity(
-        opacity: _controls && _countdown == null ? 1 : 0,
+        opacity: _controls && _countdown == null && !_upNextFocused ? 1 : 0,
         duration: const Duration(milliseconds: 250),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -777,6 +780,15 @@ class _WatchScreenState extends State<WatchScreen> {
     ),
   );
 
+  /// Slides the controls up so the focused Up next card's bottom sits 72 px above the screen's bottom edge.
+  void _revealUpNext(BuildContext card) {
+    final box = card.findRenderObject() as RenderBox?;
+    final column = _column.currentContext?.findRenderObject();
+    if (box == null || column == null) return;
+    final bottom = 800 + box.localToGlobal(Offset.zero, ancestor: column).dy + box.size.height;
+    setState(() => _slide = bottom > 1080 - 72 ? bottom - (1080 - 72) : 0);
+  }
+
   Widget _controlsView(VideoPlayerController? c, VideoInfo? info) {
     final v = c?.value;
     final live = info?.isLive ?? false;
@@ -788,9 +800,9 @@ class _WatchScreenState extends State<WatchScreen> {
       left: 96,
       right: 96,
       top: 800,
-      // Focus in the Up next row slides the controls up to show it.
+      // Focus in Up next slides the controls up until the focused card's row sits above the screen's bottom edge.
       child: AnimatedContainer(
-        transform: Matrix4.translationValues(0, _upNextFocused ? -420 : 0, 0),
+        transform: Matrix4.translationValues(0, _upNextFocused ? -_slide : 0, 0),
         duration: Tv.slide,
         curve: Curves.easeOut,
         child: AnimatedOpacity(
@@ -799,6 +811,7 @@ class _WatchScreenState extends State<WatchScreen> {
           child: ExcludeFocus(
             excluding: !_controls,
             child: Column(
+              key: _column,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _SeekBar(
@@ -840,13 +853,18 @@ class _WatchScreenState extends State<WatchScreen> {
                 const SizedBox(height: 22),
                 _buttons(c, info),
                 const SizedBox(height: 56),
-                if (upNext.isNotEmpty)
-                  TvRow(
+                if (upNext.isNotEmpty) ...[
+                  Text(
+                    _queue != null ? 'Up next in ${_queue!.title ?? 'this playlist'}' : 'Up next',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Tv.rowTitle,
+                  ),
+                  const SizedBox(height: 14),
+                  TvGrid(
                     focusNode: _upNext,
-                    // Over the video, Up next keeps smaller cards so more of it shows.
-                    cardWidth: 372,
-                    title: _queue != null ? 'Up next in ${_queue!.title ?? 'this playlist'}' : 'Up next',
                     items: upNext.take(30).toList(),
+                    onReveal: _revealUpNext,
                     actions: ItemActions(
                       onSelect: (it) {
                         if (it is! VideoItem) return openItem(context, it);
@@ -861,6 +879,7 @@ class _WatchScreenState extends State<WatchScreen> {
                       onLongPress: (it) => itemOptions(context, it),
                     ),
                   ),
+                ],
               ],
             ),
           ),
