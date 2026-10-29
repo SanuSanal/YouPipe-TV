@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../core/account.dart';
+import '../screens/account.dart';
 import '../screens/home.dart';
 import '../screens/library.dart';
 import '../screens/search.dart';
 import '../screens/settings.dart';
 import '../screens/subscriptions.dart';
+import 'cards.dart';
 import 'focusable.dart';
 import 'overlay.dart';
 import 'theme.dart';
@@ -158,6 +161,10 @@ class _NavRailState extends State<NavRail> {
     final focused = _focused && i == _index;
     final active = s.$1 == widget.active;
     final color = focused ? Tv.focusFg : (active ? Tv.text : Tv.text2);
+    // The account item shows the signed-in account's photo and name, like YouTube on TV.
+    final account = s.$1 == 'account' ? Account.instance : null;
+    final photo = account?.info?.photo;
+    final label = account == null ? s.$2 : (account.signedIn ? account.info?.name ?? 'Account' : 'Sign in');
     return GestureDetector(
       onTap: () => widget.onOpen(s.$1),
       child: Container(
@@ -172,8 +179,21 @@ class _NavRailState extends State<NavRail> {
         ),
         child: Row(
           children: [
-            Icon(s.$3, size: 36, color: color),
-            if (_focused) ...[const SizedBox(width: 28), Text(s.$2, style: TextStyle(fontSize: 28, color: color))],
+            if (photo != null)
+              ClipOval(child: NetImage(photo, width: 36, height: 36))
+            else
+              Icon(s.$3, size: 36, color: color),
+            if (_focused) ...[
+              const SizedBox(width: 28),
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 28, color: color),
+                ),
+              ),
+            ],
           ],
         ),
       ),
@@ -181,7 +201,7 @@ class _NavRailState extends State<NavRail> {
   }
 }
 
-/// The app's frame: the left menu and the sections (Search, Home, Subscriptions, Library, Settings). A section is
+/// The app's frame: the left menu and the sections (the account, Search, Home, Subscriptions, Library, Settings). A section is
 /// built when first opened and kept, so coming back keeps its place. Back goes to Home, then asks to exit.
 class Shell extends StatefulWidget {
   const Shell({super.key});
@@ -192,6 +212,7 @@ class Shell extends StatefulWidget {
 
 class ShellState extends State<Shell> {
   static const sections = [
+    ('account', 'Sign in', Icons.account_circle_outlined),
     ('search', 'Search', Icons.search),
     ('home', 'Home', Icons.home_filled),
     ('subscriptions', 'Subscriptions', Icons.subscriptions_outlined),
@@ -254,6 +275,7 @@ class ShellState extends State<Shell> {
   }
 
   Widget _section(String key) => switch (key) {
+    'account' => const AccountScreen(),
     'search' => const SearchScreen(),
     'home' => const HomeScreen(),
     'subscriptions' => const SubscriptionsScreen(),
@@ -312,7 +334,11 @@ class ShellState extends State<Shell> {
             left: 0,
             top: 0,
             bottom: 0,
-            child: NavRail(sections: sections, active: _active, onOpen: open, onExit: focusScreen, focusNode: _nav),
+            child: ListenableBuilder(
+              listenable: Account.instance,
+              builder: (context, _) =>
+                  NavRail(sections: sections, active: _active, onOpen: open, onExit: focusScreen, focusNode: _nav),
+            ),
           ),
         ],
       ),

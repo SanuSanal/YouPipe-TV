@@ -87,6 +87,7 @@ var App = (function () {
     Platform.registerKeys();
     Sidenav.build(document.getElementById('sidenav'));
     Router.init(document.getElementById('screens'));
+    Sidenav.register('account', AccountScreen.create);
     Sidenav.register('search', SearchScreen.create);
     Sidenav.register('home', HomeScreen.create);
     Sidenav.register('subscriptions', SubscriptionsScreen.create);
@@ -102,7 +103,31 @@ var App = (function () {
     Log.add('YouPipe TV ' + Platform.version() + ', ' + (Net.viaProxy ? 'dev proxy' : 'direct') + ', ' + navigator.userAgent);
     await Player.init();
     Sidenav.go('home');
+    checkAccount();
     if (/[?&]selftest\b/.test(location.search)) SelfTest.run();
+  }
+
+  /**
+   * Back from Google's sign-in page, or signed in before: ask youtube.com whether the TV is signed in. Home starts
+   * over when that changed, and a fresh sign-in imports the account's subscriptions and history.
+   */
+  function checkAccount() {
+    var returning = Account.returning();
+    if (!returning && !Account.signedIn()) return;
+    var was = Account.signedIn();
+    Account.check()
+      .then((now) => {
+        if (now !== was) Sidenav.go('home', { fresh: true });
+        if (returning === 'in' && now) {
+          Overlay.toast('Signed in to YouTube');
+          AccountScreen.importAll();
+        } else if (returning === 'in') {
+          Overlay.toast("Not signed in: the sign-in on Google's page didn't finish", 5000);
+        } else if (returning === 'out') {
+          Overlay.toast(now ? "Still signed in: the sign-out on Google's page didn't finish" : 'Signed out', 5000);
+        }
+      })
+      .catch((e) => Log.add('account check failed: ' + e.message));
   }
 
   return {

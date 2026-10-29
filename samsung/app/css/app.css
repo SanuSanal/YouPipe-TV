@@ -821,6 +821,43 @@ img.failed {
   color: #444;
 }
 
+/* Account ------------------------------------------------------------------------------------------------------ */
+
+.account-text {
+  max-width: 1180px;
+  font-size: 28px;
+  line-height: 1.4;
+  margin-bottom: 20px;
+}
+.account-text.secondary {
+  font-size: 24px;
+  color: var(--text-2);
+}
+.account-buttons {
+  margin-top: 28px;
+}
+.account-head {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+  margin-bottom: 40px;
+}
+.account-head .page-title {
+  margin: 0;
+}
+.account-photo {
+  width: 128px;
+  height: 128px;
+  border-radius: 50%;
+  background: #2c2c2c;
+}
+.nav-avatar {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border-radius: 50%;
+}
+
 /* Panels, dialogs, toast --------------------------------------------------------------------------------------- */
 
 #layers {

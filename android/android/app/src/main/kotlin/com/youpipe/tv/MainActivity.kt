@@ -1,9 +1,11 @@
 package com.youpipe.tv
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
+import android.webkit.CookieManager
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -44,5 +46,39 @@ class MainActivity : FlutterActivity() {
                 else -> result.notImplemented()
             }
         }
+        // `youpipe/account`: `signIn` opens Google's page (SignInActivity) and answers with the session cookie, or
+        // null when cancelled; `clear` forgets the WebView's cookies on sign-out.
+        MethodChannel(messenger, "youpipe/account").setMethodCallHandler { call, result ->
+            when (call.method) {
+                "signIn" -> {
+                    signInResult?.success(null)
+                    signInResult = result
+                    @Suppress("DEPRECATION")
+                    startActivityForResult(Intent(this, SignInActivity::class.java), SIGN_IN)
+                }
+
+                "clear" -> CookieManager.getInstance().removeAllCookies { removed ->
+                    CookieManager.getInstance().flush()
+                    result.success(removed)
+                }
+
+                else -> result.notImplemented()
+            }
+        }
+    }
+
+    private var signInResult: MethodChannel.Result? = null
+
+    @Deprecated("Activity.onActivityResult")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        @Suppress("DEPRECATION")
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode != SIGN_IN) return
+        signInResult?.success(if (resultCode == RESULT_OK) data?.getStringExtra(SignInActivity.EXTRA_COOKIE) else null)
+        signInResult = null
+    }
+
+    companion object {
+        private const val SIGN_IN = 7001
     }
 }

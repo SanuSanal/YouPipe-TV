@@ -4,6 +4,7 @@
 |---|---|
 | [architecture.md](architecture.md) | anything: where code runs, folder map, decisions |
 | [ui.md](ui.md) | any screen, the remote, focus, the player's controls (both apps) |
+| [account.md](account.md) | the optional Google sign-in, the account's rows and import (both apps) |
 | [data.md](data.md) | what's kept on the TV, Home rows, the subscriptions feed |
 | [streaming.md](streaming.md) | how videos are found and played (Samsung `innertube.js`/`player.js`; Android NewPipe) |
 | [apis.md](apis.md) | any network call (and `samsung/app/config.xml` origins) |

@@ -10,7 +10,7 @@ For <b>Android TV / Google TV</b> and <b>Samsung TVs</b>.</p>
   <a href="https://github.com/SanuSanal/YouPipe-TV/releases/latest">Download</a>
 </p>
 
-YouPipe TV is the TV sibling of [YouPipe](https://github.com/SanuSanal/YouPipe) (Android phones and tablets). It looks and works like YouTube's own TV app, built for the remote, and runs entirely on your TV: no ads, no account, no server in between, and your history and subscriptions stay on the TV.
+YouPipe TV is the TV sibling of [YouPipe](https://github.com/SanuSanal/YouPipe) (Android phones and tablets). It looks and works like YouTube's own TV app, built for the remote, and runs entirely on your TV: no ads, no server in between, and your history and subscriptions stay on the TV. Signing in to YouTube is optional: it brings your recommendations, history, playlists and subscriptions.
 
 ## Features
 
@@ -20,6 +20,7 @@ YouPipe TV is the TV sibling of [YouPipe](https://github.com/SanuSanal/YouPipe) 
 - Up to 1080p, live streams, quick seeking with thumbnail previews and chapters.
 - Captions, the description, chapters and comments in side panels.
 - Subscriptions, Watch later, liked videos and saved playlists, kept on the TV.
+- Optional YouTube sign-in on Google's own page: your recommendations, history, Watch later, liked videos and playlists, and your subscriptions and history copied to the TV.
 - Optional SponsorBlock; Return YouTube Dislike counts.
 - Autoplay and playlists (Play all, Shuffle).
 

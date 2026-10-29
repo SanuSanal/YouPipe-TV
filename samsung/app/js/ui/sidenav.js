@@ -1,6 +1,7 @@
 // The left menu, like YouTube on TV: a rail of icons that opens with labels while it has focus.
 var Sidenav = (function () {
   var ITEMS = [
+    ['account', 'Sign in', 'account'],
     ['search', 'Search', 'search'],
     ['home', 'Home', 'home'],
     ['subscriptions', 'Subscriptions', 'subscriptions'],
@@ -27,6 +28,16 @@ var Sidenav = (function () {
     list.lastChild.classList.add('nav-bottom');
     Dom.append(el, [h('div.nav-brand', [Dom.img('logo.svg', 'nav-logo'), h('span.nav-wordmark', { text: 'YouPipe' })]), list]);
     Focus.onChange((now) => document.getElementById('app').classList.toggle('nav-open', !!now && el.contains(now)));
+    showAccount();
+    Account.onChange(showAccount);
+  }
+
+  /** The account item shows the signed-in account's photo, like YouTube on TV. */
+  function showAccount() {
+    var b = buttons.account;
+    var photo = Account.signedIn() && Account.photo();
+    Dom.clear(b);
+    Dom.append(b, [photo ? Dom.img(photo, 'nav-avatar') : Dom.icon('account'), Dom.h('span.nav-label', { text: Account.signedIn() ? 'Account' : 'Sign in' })]);
   }
 
   /** Registers the factory for a section's root screen. */

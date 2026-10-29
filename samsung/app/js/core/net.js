@@ -41,8 +41,9 @@ var Net = (function () {
     return (await request(u, {})).json();
   }
 
-  async function getText(u) {
-    return (await request(u, {})).text();
+  /** [options] go to fetch: the account's pages pass `credentials: 'include'` (js/data/account.js). */
+  async function getText(u, options) {
+    return (await request(u, options || {})).text();
   }
 
   return { viaProxy: viaProxy, url: url, postJson: postJson, getJson: getJson, getText: getText };

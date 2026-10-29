@@ -1,6 +1,6 @@
 # Data kept on the TV
 
-Nothing about the user leaves the TV. Both apps use the **same keys and JSON shapes** (decision 9): Samsung in `localStorage` (`Store`, `js/core/store.js`), Android in shared preferences (`Store`, `lib/core/store.dart`), each key prefixed `yp.`.
+Nothing about the user leaves the TV, unless they sign in (account.md): then Android sends likes, Watch later and subscriptions to the account too. Both apps use the **same keys and JSON shapes** (decision 9): Samsung in `localStorage` (`Store`, `js/core/store.js`), Android in shared preferences (`Store`, `lib/core/store.dart`), each key prefixed `yp.`.
 
 | Key | Shape | Limit |
 |---|---|---|
@@ -25,7 +25,7 @@ The Android app maps these to YouPipe's `VideoItem`/`ChannelItem`/`PlaylistItem`
 Signed out, YouTube's own Home (`FEwhat_to_watch`) returns only a "start watching" nudge, so Home is built on the TV, like YouPipe's:
 
 1. **Continue watching:** history entries more than 15 s in and less than 90% through (videos over a minute, not live).
-2. **Recommended:** the related videos of the last 6 history videos, interleaved, without finished ones; pages through each seed's continuation.
+2. **Recommended:** signed in, the account's YouTube Home (account.md). Otherwise the related videos of the last 6 history videos, interleaved, without finished ones; pages through each seed's continuation.
 3. **Latest from your subscriptions:** the cached feed (below), refreshed in the background.
 4. **Because you watched <latest>:** that video's related videos.
 5. **Topic rows:** searches limited to this week's videos (`params: EgQIAxAB`): Music, Live now (`EgJAAQ==`), then Gaming, News, Sports, Comedy, Science and tech, Cooking, Podcasts, Travel in a shuffled order.

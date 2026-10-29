@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import '../innertube/innertube.dart';
+import 'account.dart';
 import 'library.dart';
 import 'services.dart';
 import 'subs_feed.dart';
@@ -16,7 +17,8 @@ class RowSource {
 
 /// The Home rows. Signed out, YouTube's own Home is empty until it has watch history, so like YouPipe and the Samsung
 /// app the rows are built on the TV (docs/data.md): continue watching, recommendations from what was watched
-/// (related videos), new uploads from subscriptions, then topic rows from searches of this week's videos.
+/// (related videos), new uploads from subscriptions, then topic rows from searches of this week's videos. Signed in,
+/// the account's own recommendations (YouTube's Home) take the place of the ones built from history.
 abstract final class HomeRows {
   static const _thisWeekVideos = 'EgQIAxAB';
   static const _live = 'EgJAAQ%3D%3D';
@@ -84,6 +86,26 @@ abstract final class HomeRows {
     );
   }
 
+  /// The signed-in account's Home.
+  static RowSource _accountHome() {
+    String? token;
+    return RowSource(
+      'Recommended',
+      () async {
+        final p = await Services.yt.home();
+        token = p.continuation;
+        return _playable(p.items);
+      },
+      more: () async {
+        final t = token;
+        if (t == null) return const [];
+        final p = await Services.yt.browseContinuation(t);
+        token = p.continuation;
+        return _playable(p.entries.allItems);
+      },
+    );
+  }
+
   static List<RowSource> sources() {
     final lib = Library.instance;
     final out = <RowSource>[];
@@ -98,7 +120,11 @@ abstract final class HomeRows {
       for (final h in history)
         if (!h.video.isShort) h.video.id,
     ].take(6).toList();
-    if (seeds.isNotEmpty) out.add(_related('Recommended', seeds, finished));
+    if (Account.instance.signedIn) {
+      out.add(_accountHome());
+    } else if (seeds.isNotEmpty) {
+      out.add(_related('Recommended', seeds, finished));
+    }
     if (lib.subscriptions().isNotEmpty) {
       out.add(
         RowSource('Latest from your subscriptions', () async {

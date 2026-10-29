@@ -53,3 +53,14 @@ String formatDuration(Duration d) {
   final s = d.inSeconds.remainder(60).toString().padLeft(2, '0');
   return '${neg ? '-' : ''}${h > 0 ? '$h:$m:$s' : '$m:$s'}';
 }
+
+/// "1:02:03" or "3:07" as seconds; 0 when it isn't a duration.
+int parseDuration(String? text) {
+  var total = 0;
+  for (final part in (text ?? '').trim().split(':')) {
+    final n = int.tryParse(part);
+    if (n == null) return 0;
+    total = total * 60 + n;
+  }
+  return total;
+}

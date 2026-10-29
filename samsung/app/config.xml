@@ -19,5 +19,10 @@
     <access origin="https://sponsor.ajay.app" subdomains="false"/>
     <access origin="https://returnyoutubedislikeapi.com" subdomains="false"/>
     <access origin="https://api.github.com" subdomains="false"/>
+    <!-- Google's sign-in page opens inside the app (docs/account.md): it loads from these, and the app may navigate to it. -->
+    <access origin="https://google.com" subdomains="true"/>
+    <access origin="https://gstatic.com" subdomains="true"/>
+    <access origin="https://googleapis.com" subdomains="true"/>
+    <tizen:allow-navigation>accounts.google.com *.google.com accounts.youtube.com www.youtube.com youtube.com *.youtube.com</tizen:allow-navigation>
     <tizen:setting screen-orientation="landscape" context-menu="disable" background-support="disable" encryption="disable" install-location="auto" hwkey-event="enable"/>
 </widget>

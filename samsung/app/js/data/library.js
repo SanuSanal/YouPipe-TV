@@ -1,5 +1,5 @@
 // The user's library, kept on the TV (docs/data.md): watch history with progress, subscriptions, Watch later, liked
-// videos, saved playlists and search history. Nothing leaves the TV.
+// videos, saved playlists and search history. Nothing leaves the TV (the account's lists are only read: account.js).
 var Library = (function () {
   var LIMITS = { history: 500, watchLater: 500, liked: 1000, playlists: 200, searches: 30 };
   var listeners = [];
@@ -96,6 +96,35 @@ var Library = (function () {
     return now;
   }
 
+  /** Adds the account's subscriptions to the TV's; returns how many were new. */
+  function importSubscriptions(channels) {
+    var l = subscriptions();
+    var known = {};
+    l.forEach((c) => (known[c.id] = 1));
+    var added = channels.filter((c) => !known[c.id] && (known[c.id] = 1)).map(slim);
+    if (added.length) {
+      Store.set('subs', l.concat(added));
+      changed('subs');
+    }
+    return added.length;
+  }
+
+  /** Adds videos from the account's YouTube history after the TV's own, without progress; returns how many were new. */
+  function importHistory(videos) {
+    var l = history();
+    var known = {};
+    l.forEach((h) => (known[h.video.id] = 1));
+    var at = l.reduce((min, h) => Math.min(min, h.at || min), Date.now());
+    var added = videos
+      .filter((v) => !known[v.id] && (known[v.id] = 1))
+      .map((v) => ({ video: slim(Object.assign({ type: 'video' }, v)), position: 0, duration: Format.parseTime(v.duration) || 0, at: --at }));
+    if (added.length) {
+      Store.set('history', l.concat(added).slice(0, LIMITS.history));
+      changed('history');
+    }
+    return added.length;
+  }
+
   // Search history --------------------------------------------------------------------------------------------------
 
   function searches() {
@@ -129,6 +158,8 @@ var Library = (function () {
     subscriptions: subscriptions,
     isSubscribed: isSubscribed,
     toggleSubscription: toggleSubscription,
+    importSubscriptions: importSubscriptions,
+    importHistory: importHistory,
     searches: searches,
     addSearch: addSearch,
     clear: clear,

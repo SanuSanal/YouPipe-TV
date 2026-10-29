@@ -48,8 +48,18 @@ var SubscriptionsScreen = (function () {
   return { create: create };
 })();
 
+// Library: the lists kept on the TV. Signed in, the account's YouTube history, Watch later, liked videos and playlists
+// follow the TV's history (read from youtube.com, js/data/account.js).
 var LibraryScreen = (function () {
   var ROW_LIMIT = 20;
+  var ACCOUNT_ROWS = [
+    ['YouTube history', () => Account.history()],
+    ['YouTube Watch later', () => Account.playlist('WL')],
+    ['YouTube liked videos', () => Account.playlist('LL')],
+    ['YouTube playlists', () => Account.playlists()],
+  ];
+  // The account's pages are large (about 1 MB each), so a visit within two minutes reuses them.
+  var accountCache = { at: 0, lists: {} };
 
   function create() {
     var s = Screens.base('library', 64);
@@ -77,14 +87,53 @@ var LibraryScreen = (function () {
         ['Subscriptions', Library.subscriptions(), null],
       ];
       var any = false;
-      sections.forEach((sec) => {
-        if (!sec[1].length) return;
-        any = true;
-        s.content.appendChild(section(sec[0], sec[1], sec[2] ? withRemove(sec[2], sec[0]) : null));
+      sections.forEach((sec, i) => {
+        if (sec[1].length) {
+          any = true;
+          s.content.appendChild(section(sec[0], sec[1], sec[2] ? withRemove(sec[2], sec[0]) : null));
+        }
+        if (i === 0 && Account.signedIn()) {
+          any = true;
+          accountRows();
+        }
       });
       if (!any) {
         s.content.appendChild(Screens.message('Your library is empty', 'Videos you watch, save for later or like, and playlists you save, show up here.'));
       }
+    }
+
+    /** The account's lists, each a row that fills in when its page arrives. */
+    function accountRows() {
+      if (Date.now() - accountCache.at > 2 * 60 * 1000) accountCache = { at: Date.now(), lists: {} };
+      var tasks = ACCOUNT_ROWS.map((def) => {
+        var title = def[0];
+        var row = Cards.row({ title: title });
+        s.content.appendChild(row.el);
+        function fill(items) {
+          if (!items.length) return row.el.remove();
+          row.add(items.slice(0, ROW_LIMIT));
+          if (items.length <= ROW_LIMIT) return;
+          // The rest of the first page; youtube.com's page holds up to 100 videos.
+          var all = Dom.h('div.card.see-all.focusable', [Dom.h('div.see-all-box', { text: 'See all' })]);
+          all._activate = () => ListScreen.open(title, items);
+          all.addEventListener('click', all._activate);
+          row.track.appendChild(all);
+        }
+        var cached = accountCache.lists[title];
+        if (cached) return fill(cached);
+        row.placeholders();
+        return async () => {
+          try {
+            var items = await def[1]();
+            accountCache.lists[title] = items;
+            if (row.el.isConnected) fill(items);
+          } catch (e) {
+            Log.add('account row "' + title + '" failed: ' + e.message);
+            row.el.remove();
+          }
+        };
+      });
+      Screens.queue(tasks.filter(Boolean), 2);
     }
 
     /** Card options that add "Remove from <list>" for the list the card sits in. */

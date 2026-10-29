@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../innertube/innertube.dart';
 import '../player/player_service.dart';
 import '../player/video_info.dart';
+import 'account.dart';
 import 'library.dart';
 import 'settings.dart';
 import 'store.dart';
@@ -26,6 +27,7 @@ abstract final class Services {
     player = PlayerService(infos);
     // Library loads lazily from the store.
     Library.instance;
+    await Account.instance.init();
     try {
       final v = await yt.ensureVisitorData();
       if (v != null) await Store.instance.set('visitorData', v);

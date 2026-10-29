@@ -1,6 +1,6 @@
 # Network calls
 
-All calls are signed out and go straight from the TV. On Samsung, every origin below is also listed in `samsung/app/config.xml` (`<access origin>`), which replaces CORS there, and in the dev server's allowlist (`samsung/tools/dev-server.mjs`).
+All calls go straight from the TV; they're signed out unless the user signs in (account.md). On Samsung, every origin below is also listed in `samsung/app/config.xml` (`<access origin>`), which replaces CORS there, and in the dev server's allowlist (`samsung/tools/dev-server.mjs`).
 
 ## YouTube (InnerTube, `www.youtube.com/youtubei/v1/…`)
 
@@ -13,7 +13,20 @@ All calls are signed out and go straight from the TV. On Samsung, every origin b
 | `POST next` `{videoId}` | `InnerTube.next` (details, chapters, related, comments token), `nextMore` | `related`, `nextContinuation` | WEB |
 | `POST next` `{continuation}` | `InnerTube.comments` | `comments`, `commentsContinuation` | WEB. Comment entities in `frameworkUpdates` |
 | `POST player` | `InnerTube.player` | (NewPipeExtractor) | Samsung: VISIONOS, then ANDROID (streaming.md). Streams, captions, storyboards |
+| `POST account/account_menu` | | `accountInfo` | Signed in: name, photo |
+| `POST browse` `{browseId: FEwhat_to_watch}` | | `home`, `browseContinuation` | Signed in: the Recommended row |
+| `POST browse` `{browseId: FEhistory \| FEplaylist_aggregation \| FEchannels}`, `POST guide` | | `accountFeed`, `subscribedChannels` | Signed in: Library rows, import |
+| `POST like/like`, `like/removelike`, `subscription/subscribe`, `subscription/unsubscribe`, `browse/edit_playlist` (`WL`) | | `like`, `subscribe`, `editPlaylist` | Signed in: sync from `Library.remoteSync` |
 | `GET www.youtube.com/feeds/videos.xml?channel_id=` | `ChannelFeed.latest` | `SubsFeed.latest` | Subscriptions feed; 404 for some channels, then the Videos tab (data.md) |
+
+Signed in on Android, every InnerTube call carries the session cookie and `Authorization: SAPISIDHASH` (account.md).
+
+## youtube.com pages (Samsung, signed in)
+
+| Call | Samsung | Notes |
+|---|---|---|
+| `GET www.youtube.com/`, `/feed/history`, `/feed/playlists`, `/feed/channels`, `/playlist?list=WL\|LL` (`app=desktop&persist_app=1`, `credentials: 'include'`) | `Account.check`, `recommended`, `history`, `playlists`, `subscriptions`, `playlist` | `ytInitialData` from the HTML; about 1 MB each |
+| Navigation to `accounts.google.com/ServiceLogin…` and `accounts.google.com/Logout` | `Account.signIn`, `signOut` | `tizen:allow-navigation`; the page loads from google.com, gstatic.com, googleapis.com |
 
 ## Media
 
@@ -41,4 +54,5 @@ All calls are signed out and go straight from the TV. On Samsung, every origin b
 |---|---|---|
 | `youpipe/stream_extractor` | `getVideoInfo {videoId, hl, gl, maxHeight}` | `StreamExtractorChannel` (copied from YouPipe) |
 | `youpipe/playback_proxy` | `url {url, mimeType}` → loopback URL | `PlaybackProxy` (copied from YouPipe) |
+| `youpipe/account` | `signIn` → cookie or null (opens `SignInActivity`), `clear` | `MainActivity`, `SignInActivity` |
 | `youpipe/system` | `playing {playing}` (keep the screen on), `exit` | `MainActivity` |

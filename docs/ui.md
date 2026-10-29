@@ -16,7 +16,7 @@ Both lay out a **1920×1080 stage** with the same pixel sizes:
 
 | Screen | Layout |
 |---|---|
-| Left menu | A rail of icons (Search, Home, Subscriptions, Library, Settings at the bottom). While it has focus it opens to 360 px with labels and a shadow over the screen |
+| Left menu | A rail of icons (the account at the top, showing its photo when signed in; Search, Home, Subscriptions, Library, Settings at the bottom). While it has focus it opens to 360 px with labels and a shadow over the screen |
 | Home | Rows that slide sideways: Continue watching, Recommended, Latest from your subscriptions, Because you watched…, then topic rows (Music, Live now, then shuffled topics). Grey placeholder cards while a row loads |
 | Search | The keyboard on the left (7 columns: letters or 123, then Space/⌫/123, then Clear/Search); on the right, recent searches or suggestions while typing, and the results grid (3 across) after a search |
 | Subscriptions | A row of the subscribed channels, then the latest videos as a grid |

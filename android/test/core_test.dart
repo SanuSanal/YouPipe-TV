@@ -1,5 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:youpipe_tv/core/format.dart';
 import 'package:youpipe_tv/core/library.dart';
+import 'package:youpipe_tv/core/store.dart';
 import 'package:youpipe_tv/innertube/models.dart';
 import 'package:youpipe_tv/player/captions.dart';
 
@@ -34,6 +37,55 @@ void main() {
       final back = HistoryEntry.fromJson(e.toJson())!;
       expect(back.progress, closeTo(0.2, 1e-9));
       expect(HistoryEntry.fromJson({'video': 'nope'}), isNull);
+    });
+  });
+
+  group('account import', () {
+    setUp(() async {
+      SharedPreferences.setMockInitialValues({});
+      await Store.init();
+    });
+
+    test("history goes after the TV's own, without duplicates or progress", () {
+      final lib = Library.instance;
+      lib.saveProgress(const VideoItem(id: 'a', title: 'A'), 100, 600);
+      final added = lib.importHistory(const [
+        VideoItem(id: 'a', title: 'A'),
+        VideoItem(id: 'b', title: 'B', durationText: '1:02:03'),
+        VideoItem(id: 'c', title: 'C'),
+      ]);
+      expect(added, 2);
+      final h = lib.history();
+      expect(h.map((e) => e.video.id), ['a', 'b', 'c']);
+      expect(h[0].position, 100);
+      expect(h[1].position, 0);
+      expect(h[1].duration, 3723);
+      expect(h[1].at, greaterThan(h[2].at));
+      expect(lib.continueWatching().map((e) => e.video.id), ['a']);
+    });
+
+    test('subscriptions merge without sending them back', () {
+      final lib = Library.instance;
+      final synced = <String>[];
+      lib.remoteSync = (key, id, on) => synced.add('$key $id $on');
+      lib.toggleSubscription(const ChannelItem(id: 'UC1', name: 'One'));
+      final added = lib.importSubscriptions(const [
+        ChannelItem(id: 'UC1', name: 'One'),
+        ChannelItem(id: 'UC2', name: 'Two'),
+      ]);
+      expect(added, 1);
+      expect(lib.subscriptions().map((c) => c.id), ['UC1', 'UC2']);
+      expect(synced, ['subs UC1 true']);
+      lib.remove('subs', 'UC2');
+      expect(synced.last, 'subs UC2 false');
+      lib.remoteSync = null;
+    });
+
+    test('parseDuration', () {
+      expect(parseDuration('3:07'), 187);
+      expect(parseDuration('1:02:03'), 3723);
+      expect(parseDuration('LIVE'), 0);
+      expect(parseDuration(null), 0);
     });
   });
 

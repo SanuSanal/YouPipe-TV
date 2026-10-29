@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../core/account.dart';
 import '../core/home_rows.dart';
 import '../core/library.dart';
 import '../innertube/innertube.dart';
@@ -36,12 +37,14 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     Library.instance.addListener(_onLibrary);
+    Account.instance.addListener(_onAccount);
     _build();
   }
 
   @override
   void dispose() {
     Library.instance.removeListener(_onLibrary);
+    Account.instance.removeListener(_onAccount);
     for (final r in _rows) {
       r.focus.dispose();
     }
@@ -56,6 +59,15 @@ class _HomeScreenState extends State<HomeScreen> {
     final row = _rows.where((r) => r.source.title == 'Continue watching').firstOrNull;
     if (row == null || row.focus.hasFocus) return;
     setState(() => row.items = [for (final h in Library.instance.continueWatching().take(30)) h.video]);
+  }
+
+  /// Signing in or out starts Home over with (or without) the account's recommendations.
+  bool _signedIn = Account.instance.signedIn;
+
+  void _onAccount() {
+    if (!mounted || _signedIn == Account.instance.signedIn) return;
+    _signedIn = Account.instance.signedIn;
+    _build();
   }
 
   void _build() {

@@ -1,6 +1,7 @@
 // The Home rows. Signed out, YouTube's own Home is empty until there's watch history on its side, so like YouPipe the
 // rows are built on the TV (docs/data.md): continue watching, recommendations from what was watched (related
-// videos), new uploads from subscriptions, then topic rows from searches.
+// videos), new uploads from subscriptions, then topic rows from searches. Signed in, the account's own recommendations
+// (its youtube.com Home) take the place of the ones built from history.
 //
 // A source is {title, load(): Promise<items>, more(): Promise<items>, hasMore()}: load gives the first page.
 var Home = (function () {
@@ -119,7 +120,8 @@ var Home = (function () {
       .filter((h) => !h.video.short)
       .slice(0, 6)
       .map((h) => h.video.id);
-    if (seeds.length) out.push(relatedSource('Recommended', seeds, finished));
+    if (Account.signedIn()) out.push({ title: 'Recommended', load: Account.recommended, more: () => Promise.resolve([]), hasMore: () => false });
+    else if (seeds.length) out.push(relatedSource('Recommended', seeds, finished));
     if (Library.subscriptions().length) out.push(subscriptionsSource());
     if (history[0]) out.push(relatedSource('Because you watched ' + history[0].video.title, [history[0].video.id], finished));
     var topics = shuffle(TOPICS.slice(2)); // Music and Live now stay first

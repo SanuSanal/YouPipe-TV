@@ -1,6 +1,9 @@
+import 'dart:math';
+
 import 'package:flutter/foundation.dart';
 
 import '../innertube/models.dart';
+import 'format.dart';
 import 'store.dart';
 
 /// One watch history entry: where the video got to.
@@ -93,11 +96,15 @@ YtItem? itemFromJson(Object? j) {
 }
 
 /// The user's library, kept on the TV (docs/data.md): watch history with progress, subscriptions, Watch later, liked
-/// videos, saved playlists and search history. Nothing leaves the TV.
+/// videos, saved playlists and search history. Signed out, nothing leaves the TV; signed in, likes, Watch later and
+/// subscriptions also go to the account through [remoteSync] (core/account.dart).
 class Library extends ChangeNotifier {
   Library._();
 
   static final instance = Library._();
+
+  /// Mirrors a change to `liked`, `watchLater` or `subs` to the Google account, when signed in.
+  void Function(String key, String id, bool on)? remoteSync;
 
   static const _limits = {
     'history': 500,
@@ -125,10 +132,12 @@ class Library extends ChangeNotifier {
     final had = list.any((i) => i.id == item.id);
     final next = had ? list.where((i) => i.id != item.id).toList() : [item, ...list];
     _save(key, next.map(itemToJson).toList());
+    remoteSync?.call(key, item.id, !had);
     return !had;
   }
 
   void remove(String key, String id) {
+    if (key != 'history' && has(key, id)) remoteSync?.call(key, id, false);
     if (key == 'history') {
       _save(key, history().where((h) => h.video.id != id).map((h) => h.toJson()).toList());
     } else {
@@ -151,6 +160,20 @@ class Library extends ChangeNotifier {
     _save('history', [entry.toJson(), ...history().where((h) => h.video.id != video.id).map((h) => h.toJson())]);
   }
 
+  /// Adds videos from the account's YouTube history after the TV's own, without progress (YouTube doesn't say how far
+  /// they got); returns how many were new.
+  int importHistory(List<VideoItem> videos) {
+    final local = history();
+    final known = {for (final h in local) h.video.id};
+    var at = local.isEmpty ? DateTime.now().millisecondsSinceEpoch : local.map((h) => h.at).reduce(min);
+    final added = <HistoryEntry>[
+      for (final v in videos)
+        if (known.add(v.id)) HistoryEntry(v, 0, parseDuration(v.durationText), --at),
+    ];
+    if (added.isNotEmpty) _save('history', [...local, ...added].map((h) => h.toJson()).toList());
+    return added.length;
+  }
+
   /// Videos started but not finished, newest first.
   List<HistoryEntry> continueWatching() => history()
       .where((h) => !h.video.isLive && h.duration > 60 && h.position > 15 && h.position < h.duration * 0.9)
@@ -164,6 +187,18 @@ class Library extends ChangeNotifier {
 
   /// Subscribes or unsubscribes; true when now subscribed.
   bool toggleSubscription(ChannelItem channel) => toggle('subs', channel);
+
+  /// Adds the account's subscriptions to the TV's (without sending them back); returns how many were new.
+  int importSubscriptions(List<ChannelItem> channels) {
+    final local = listOf('subs');
+    final known = {for (final c in local) c.id};
+    final added = [
+      for (final c in channels)
+        if (known.add(c.id)) c,
+    ];
+    if (added.isNotEmpty) _save('subs', [...local, ...added].map(itemToJson).toList());
+    return added.length;
+  }
 
   // Searches --------------------------------------------------------------------------------------------------------
 

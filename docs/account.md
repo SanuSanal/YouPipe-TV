@@ -1,0 +1,62 @@
+# Google account (optional)
+
+Everything works signed out. Signing in brings the account's recommendations, YouTube history, Watch later, liked videos and playlists, and copies its subscriptions and history to the TV.
+
+**Never type the user's Google credentials** (AGENTS.md): the user signs in on Google's page themselves.
+
+## How sign-in works
+
+It's YouPipe's phone sign-in (`D:\claude\YouPipe\docs\account.md`): Google's own sign-in page, continuing to youtube.com, then the youtube.com session cookies. There's no OAuth client.
+
+YouTube for TV's own activation code (youtube.com/activate) is **not used**: it only works with YouTube's TV app credentials, and taking those from YouTube's code would mean posing as YouTube's app (decided 2026-10-29).
+
+### Android TV (`lib/core/account.dart`, `SignInActivity.kt`)
+
+- **Sign-in:** the menu's top item (Sign in) → Account screen → **Sign in**, which opens `SignInActivity`.
+  - That's a native WebView with Google's page (the same URL as YouPipe), so the remote and the TV's keyboard work in it.
+  - Back steps back in the page, then cancels.
+- **The cookie:**
+  - When youtube.com loads with a `SAPISID` cookie, the activity returns `CookieManager.getCookie('https://www.youtube.com')` through `youpipe/account`. CookieManager can read it although the auth cookies are HttpOnly.
+  - It's stored in `flutter_secure_storage` (`yt_cookie`).
+- **Requests:** InnerTube adds `Cookie`, `Authorization: SAPISIDHASH …`, `X-Goog-AuthUser` and `X-Origin` (YouPipe's copied `lib/innertube/`).
+- **Sync:** likes, Watch later and subscribe/unsubscribe also go to the account (`Library.remoteSync`). This is best-effort; the TV's library stays the source of truth.
+- **Sign out:** deletes the cookie and clears the WebView's cookies.
+
+### Samsung (`js/data/account.js`)
+
+- **Sign-in:** the Account screen's **Sign in** navigates the app itself to Google's page. `config.xml` allows it with `tizen:allow-navigation` plus `<access>` for google.com, gstatic.com and googleapis.com.
+  - The web engine keeps youtube.com's cookies.
+  - Once YouTube's page shows, the user presses Back, or reopens YouPipe if Back does nothing.
+  - On start, a pending sign-in (`yp.accountPending`) makes the app check the account.
+- **Requests: youtube.com's pages, not InnerTube.**
+  - The app can't read the cookies (HttpOnly, another origin), so it can't compute SAPISIDHASH, and browsers forbid setting a `Cookie` header.
+  - Instead it GETs youtube.com's desktop pages with `credentials: 'include'`: `/`, `/feed/history`, `/feed/playlists`, `/feed/channels` and `/playlist?list=WL|LL`, each with `app=desktop&persist_app=1`.
+  - It reads their `ytInitialData`, the same JSON as an InnerTube browse response, with the existing parsers. `"LOGGED_IN":true` in the page says whether the TV is signed in.
+  - Checked 2026-10-29, signed out: these pages answer the Tizen user agent with the desktop page and `ytInitialData`.
+- **Read-only:** likes, Watch later and subscriptions changed in YouPipe stay on the TV.
+  - Lists stop at their first page; youtube.com's playlist page holds 100 videos.
+  - Playlists from YouTube playlists open through signed-out InnerTube, so private playlists don't open.
+- **Sign out:** navigates to Google's Logout page, which clears the cookies the app can't touch.
+
+## What signing in adds (both apps)
+
+- **Home:** the account's YouTube Home as the Recommended row, in place of the one built from history (data.md). Android pages through it; Samsung shows its first page.
+- **Library:** YouTube history, YouTube Watch later, YouTube liked videos and YouTube playlists rows, after the TV's own history.
+- **Import:**
+  - Right after signing in, and from the Account screen, the account's subscriptions and YouTube history are copied into the TV's library: `subs`, and `history` (data.md).
+  - Imported history has no progress (YouTube doesn't say how far a video got) and goes after the TV's own entries.
+  - Already-known channels and videos are skipped.
+- **Not done:** watching in YouPipe doesn't add to the account's YouTube history. That would need the signed-in `/player` response's playback tracking, which neither app uses.
+
+## Status (2026-10-29)
+
+- **Android TV:** checked on the emulator up to Google's page.
+  - The page opens and the remote moves around it; Back returns to YouPipe.
+  - The signed-in calls are YouPipe's, which were checked with a real account on phones (2026-10-04).
+  - Signing in on the TV itself is not tested yet.
+- **Samsung:** not tried on the TV yet.
+  - In desktop Chromium, the screens, rows and the `ytInitialData` parsing work (on public pages).
+  - Unknown until tried on the TV:
+    - whether the app can navigate to Google's page and back;
+    - whether the remote can move around Google's page;
+    - whether the web engine sends youtube.com's cookies with the app's requests.
