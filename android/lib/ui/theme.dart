@@ -12,9 +12,9 @@ abstract final class Tv {
   static const focusBg = Color(0xFFF1F1F1);
   static const focusFg = Color(0xFF0F0F0F);
 
-  static const navWidth = 112.0;
+  static const navWidth = 96.0;
   static const navOpenWidth = 360.0;
-  static const pad = 64.0;
+  static const pad = 40.0;
 
   /// About 2.8 cards across a row, like YouTube on TV.
   static const cardWidth = 600.0;

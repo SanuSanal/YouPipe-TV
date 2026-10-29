@@ -157,10 +157,10 @@ class _NavRailState extends State<NavRail> {
         height: 72,
         width: Tv.navOpenWidth - 32,
         // Closed, the icon sits in the middle of the rail.
-        padding: const EdgeInsets.symmetric(horizontal: 22),
+        padding: const EdgeInsets.symmetric(horizontal: 14),
         decoration: BoxDecoration(
           color: focused ? Tv.focusBg : Colors.transparent,
-          borderRadius: BorderRadius.circular(36),
+          borderRadius: BorderRadius.circular(14),
         ),
         child: Row(
           children: [
@@ -436,7 +436,7 @@ class TopBar extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(width: 20),
+          const SizedBox(width: 12),
           TvFocusable(
             focusNode: accountNode,
             scrollAlignment: null,
@@ -455,7 +455,7 @@ class TopBar extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: Tv.navWidth + Tv.pad - 92),
+          const SizedBox(width: Tv.navWidth + Tv.pad - 84),
           AnimatedOpacity(
             opacity: menuOpen ? 0 : 1,
             duration: Tv.slide,
@@ -488,15 +488,15 @@ class TopBar extends StatelessWidget {
           // The YouPipe name sits at the far right.
           const Spacer(),
           Padding(
-            padding: const EdgeInsets.only(top: 10),
-            child: SvgPicture.asset('assets/logo.svg', width: 52, height: 52),
+            padding: const EdgeInsets.only(top: 4),
+            child: SvgPicture.asset('assets/logo.svg', width: 64, height: 64),
           ),
           const SizedBox(width: 16),
           const Padding(
-            padding: EdgeInsets.only(top: 12),
+            padding: EdgeInsets.only(top: 8),
             child: Text(
               'YouPipe',
-              style: TextStyle(fontSize: 34, fontWeight: FontWeight.w700, letterSpacing: -0.5, color: Tv.text),
+              style: TextStyle(fontSize: 42, fontWeight: FontWeight.w700, letterSpacing: -0.5, color: Tv.text),
             ),
           ),
           const SizedBox(width: Tv.pad),

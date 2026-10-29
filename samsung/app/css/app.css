@@ -25,9 +25,9 @@
   --brand: #ff0000;
   --focus-bg: #f1f1f1;
   --focus-fg: #0f0f0f;
-  --nav-w: 112px;
+  --nav-w: 96px;
   --nav-open-w: 360px;
-  --pad: 64px;
+  --pad: 40px;
   /* About 2.8 cards across, like YouTube on TV. */
   --card-w: 600px;
   --topbar-h: 152px;
@@ -171,8 +171,9 @@ img.failed {
   align-items: center;
   gap: 28px;
   height: 72px;
-  padding: 0 24px;
-  border-radius: 36px;
+  /* Closed, the icon sits in the middle of the rail. */
+  padding: 0 14px;
+  border-radius: 14px;
   color: var(--text-2);
   white-space: nowrap;
   font-size: 28px;
@@ -898,7 +899,7 @@ img.failed {
 .topbar-account {
   width: 72px;
   height: 72px;
-  margin-left: 20px;
+  margin-left: 12px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -926,7 +927,7 @@ img.failed {
   gap: 20px;
   width: 760px;
   height: 72px;
-  margin-left: calc(var(--nav-w) + var(--pad) - 92px);
+  margin-left: calc(var(--nav-w) + var(--pad) - 84px);
   padding: 0 28px;
   border-radius: 36px;
   background: var(--surface);
@@ -952,15 +953,15 @@ img.failed {
   /* At the far right of the bar. */
   margin-left: auto;
   margin-right: var(--pad);
-  font-size: 34px;
+  font-size: 42px;
   font-weight: 700;
   letter-spacing: -0.5px;
   white-space: nowrap;
   transition: opacity var(--slide);
 }
 .topbar-logo {
-  width: 52px;
-  height: 52px;
+  width: 64px;
+  height: 64px;
 }
 /* The open menu's shadow covers the screen; the search box steps back with it. */
 #topbar.nav-open .topbar-search {
