@@ -137,12 +137,19 @@
     code { font-size: 0.875em; }
     .note { margin-top: 1rem; padding: 1rem 1.25rem; border-radius: 1rem; background: rgb(255 0 0 / 0.07); color: var(--ink); font-size: 0.9375rem; }
     .apks { margin-top: 0.75rem; display: flex; flex-wrap: wrap; gap: 0.5rem; }
-    .options { margin-top: 0.9rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 0.9rem; }
-    .option { min-width: 0; padding: 1.1rem 1.2rem; border-radius: 1rem; background: var(--porcelain); box-shadow: inset 0 0 0 1px var(--line); }
+    .choose { margin-top: 1.25rem; color: var(--steel); }
+    .apk-choice { margin-top: 1rem; }
+    .apk-choice p { margin: 0; }
+    .apk-choice ul { margin: 0.5rem 0 0; padding-left: 1.2rem; }
+    .apk-choice li { margin-top: 0.3rem; }
+    .option pre { white-space: pre-wrap; word-break: break-all; }
+    .options { margin-top: 0.75rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 0.9rem; }
+    .option { min-width: 0; padding: 1.25rem 1.4rem; border-radius: 1.25rem; background: var(--paper); box-shadow: inset 0 0 0 1px var(--line); }
     .option h4 { margin: 0; font: 600 1rem var(--body); color: var(--ink); }
     .option .tag { display: block; margin-bottom: 0.35rem; font: 500 0.75rem var(--mono); text-transform: uppercase; letter-spacing: 0.1em; color: var(--signal); }
     .option ol { margin: 0.5rem 0 0; padding-left: 1.2rem; color: var(--steel); }
     .option li { margin-top: 0.35rem; }
+    .option b { color: var(--ink); }
 
     table { margin-top: 2rem; width: 100%; border-collapse: collapse; background: var(--paper); border-radius: 1.25rem; overflow: hidden; box-shadow: inset 0 0 0 1px var(--line); }
     th, td { text-align: left; padding: 1rem 1.25rem; border-bottom: 1px solid var(--line); vertical-align: top; }
@@ -242,55 +249,47 @@
 
         <div class="panel" id="android" role="tabpanel" aria-labelledby="tab-android">
           <p class="needs"><b>You need:</b> an Android TV or Google TV with Android 10 or later (Chromecast with Google TV, NVIDIA Shield, Sony, TCL, Hisense and others), and its remote.</p>
-          <ol class="steps">
-            <li>
-              <h3>Allow apps from outside the Play Store</h3>
-              <ul>
-                <li>The TV only installs apps from outside the Play Store through an app you allow: <b>Downloader</b> or <b>Send Files to TV</b>, whichever you use in step 2.</li>
-                <li>The allowing is under <b>Settings → Apps → Security &amp; restrictions → Unknown sources</b>; on Google TV, <b>Settings → Privacy → Security &amp; restrictions → Unknown sources</b>. Many TVs also ask by themselves the first time you install.</li>
-                <li>If you don't see Unknown sources, turn on developer options first: <b>Settings → System → About</b>, then press OK on <b>Android TV OS build</b> seven times.</li>
-              </ul>
-            </li>
-            <li>
-              <h3>Download YouPipe TV</h3>
-              <p>Either on the TV itself, or on your phone and then send it to the TV.</p>
-              <div class="options">
-                <div class="option">
-                  <span class="tag">Option A</span>
-                  <h4>Download on the TV</h4>
-                  <ol>
-                    <li>Install <b>Downloader</b> (by AFTVnews) from the Play Store on the TV, and allow it under Unknown sources (step 1).</li>
-                    <li>In Downloader, type this address and choose Go:
-                      <pre id="apk-url">https://github.com/SanuSanal/YouPipe-TV/releases/latest</pre>
-                    </li>
-                    <li>Pick the APK for your TV (below).</li>
-                  </ol>
-                </div>
-                <div class="option">
-                  <span class="tag">Option B</span>
-                  <h4>Download on your phone, send it to the TV</h4>
-                  <ol>
-                    <li>Install <b>Send Files to TV</b> (or a similar file-sending app) from the Play Store on both the phone and the TV, on the same Wi-Fi. Allow it on the TV under Unknown sources (step 1).</li>
-                    <li>On the phone, download the APK for your TV (below) from the <a href="https://github.com/SanuSanal/YouPipe-TV/releases/latest">latest release</a>.</li>
-                    <li>Open the app on the TV and choose <b>Receive</b>; on the phone choose <b>Send</b>, then pick the APK and your TV.</li>
-                  </ol>
-                </div>
-              </div>
-              <p>Which APK:</p>
-              <ul>
-                <li><code>YouPipe-TV-…-android.apk</code> works on every TV (the safe choice).</li>
-                <li><code>…-arm64-v8a.apk</code> is smaller, for most newer TVs and boxes. If it says "App not installed", use <code>…-armeabi-v7a.apk</code>: some TVs run 32-bit Android.</li>
-              </ul>
-              <div class="apks" id="apk-buttons"></div>
-            </li>
-            <li>
-              <h3>Install and open it</h3>
-              <p>Open the APK: Downloader opens the installer by itself; with Send Files to TV, open the received file in the app. Choose <b>Install</b>, then <b>Open</b>. YouPipe also appears in the row of apps on your TV's home screen.</p>
-            </li>
-          </ol>
+          <p class="choose">Pick one of two ways. Both end with the same app on your TV.</p>
+          <div class="options">
+            <div class="option">
+              <span class="tag">Option A · just the TV</span>
+              <h4>Download on the TV with Downloader</h4>
+              <ol>
+                <li>On the TV, install <b>Downloader</b> (by AFTVnews) from the Play Store.</li>
+                <li>Let it install apps: <b>Settings → Apps → Security &amp; restrictions → Unknown sources</b>, and turn it on for Downloader. On Google TV it's <b>Settings → Privacy → Security &amp; restrictions → Unknown sources</b>.</li>
+                <li>Open Downloader, type this address and choose <b>Go</b>:
+                  <pre id="apk-url">https://github.com/SanuSanal/YouPipe-TV/releases/latest</pre>
+                </li>
+                <li>Choose the APK for your TV (below). Downloader opens the installer: choose <b>Install</b>, then <b>Open</b>.</li>
+              </ol>
+            </div>
+            <div class="option">
+              <span class="tag">Option B · phone and TV</span>
+              <h4>Download on your phone, send it to the TV</h4>
+              <ol>
+                <li>Install <b>Send Files to TV</b> (or a similar file-sending app) from the Play Store on the phone and on the TV. Keep both on the same Wi-Fi.</li>
+                <li>On the TV, let it install apps: turn it on under <b>Unknown sources</b>, in the same place as in option A.</li>
+                <li>On the phone, download the APK for your TV (below) from the <a href="https://github.com/SanuSanal/YouPipe-TV/releases/latest">latest release</a>.</li>
+                <li>Open the app on the TV and choose <b>Receive</b>. On the phone choose <b>Send</b>, then the APK and your TV.</li>
+                <li>On the TV, open the received APK in the app and choose <b>Install</b>, then <b>Open</b>.</li>
+              </ol>
+            </div>
+          </div>
+
+          <div class="needs apk-choice">
+            <p><b>Which APK?</b></p>
+            <ul>
+              <li><code>YouPipe-TV-…-android.apk</code> works on every TV (the safe choice).</li>
+              <li><code>…-arm64-v8a.apk</code> is smaller, for most newer TVs and boxes. If it says "App not installed", use <code>…-armeabi-v7a.apk</code>: some TVs run 32-bit Android.</li>
+            </ul>
+            <div class="apks" id="apk-buttons"></div>
+          </div>
+
+          <p class="note"><b>Tips:</b> YouPipe then appears in the row of apps on your TV's home screen. If you don't see <b>Unknown sources</b>, turn on developer options first: <b>Settings → System → About</b>, then press OK on <b>Android TV OS build</b> seven times. Many TVs also ask by themselves the first time you install.</p>
+
           <details>
             <summary>Install from a computer instead (adb)</summary>
-            <p>On the TV, turn on developer options (above), then <b>Settings → System → Developer options → USB debugging</b> (on some TVs, <b>Network debugging</b>). Find the TV's IP address under <b>Settings → Network</b>. On the computer, with <a href="https://developer.android.com/tools/releases/platform-tools">Android platform-tools</a>:</p>
+            <p>On the TV, turn on developer options (see the tips above), then <b>Settings → System → Developer options → USB debugging</b> (on some TVs, <b>Network debugging</b>). Find the TV's IP address under <b>Settings → Network</b>. On the computer, with <a href="https://developer.android.com/tools/releases/platform-tools">Android platform-tools</a>:</p>
             <pre>adb connect 192.168.1.50:5555
 adb install YouPipe-TV-v1.0.0-android.apk</pre>
             <p>The TV asks you to allow the computer the first time.</p>
