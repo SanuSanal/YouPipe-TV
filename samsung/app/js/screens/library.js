@@ -4,6 +4,7 @@ var SubscriptionsScreen = (function () {
 
   function create() {
     var s = Screens.base('subscriptions', 64);
+    Topbar.attach(s);
     s.keep = true;
     var shownAt = 0;
 
@@ -28,7 +29,7 @@ var SubscriptionsScreen = (function () {
       Dom.append(s.content, [channels.el, h('div.row-title.vline', { text: videos.length ? 'Latest videos' : 'Loading videos…' }), grid.el]);
       var again = keepFocus && s.content.querySelector('[data-id="' + keepFocus + '"]');
       if (again) Focus.set(again, { instant: true });
-      else if (!Sidenav.contains(Focus.current) && !s.el.hidden && !Overlay.isOpen()) Router.focusScreen();
+      else if (!Sidenav.contains(Focus.current) && !Topbar.contains(Focus.current) && !s.el.hidden && !Overlay.isOpen()) Router.focusScreen();
     }
 
     s.firstFocus = () => s.content.querySelector('.grid .focusable') || s.content.querySelector('.focusable');
@@ -63,6 +64,7 @@ var LibraryScreen = (function () {
 
   function create() {
     var s = Screens.base('library', 64);
+    Topbar.attach(s);
 
     function section(title, items, opts) {
       var row = Cards.row({ title: title, cardOpts: opts && opts.cardOpts });

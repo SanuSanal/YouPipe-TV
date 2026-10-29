@@ -10,13 +10,15 @@ Both lay out a **1920×1080 stage** with the same pixel sizes:
 
 - Dark (`#0F0F0F`), Roboto (bundled on Samsung), YouPipe red `#FF0000` for the brand, the progress bar and the Subscribe button.
 - **Focus:** a white ring and a 6% scale on the focused card; white fill with dark text on focused buttons, list rows, keyboard keys and menu items.
-- Cards are 372 px wide (16:9 thumbnail, two-line title, channel, views • age); about 4.4 fit across, like YouTube's rows. A duration or LIVE badge, and a red progress line for videos in the history.
+- Cards are 600 px wide (16:9 thumbnail, two-line 30 px title, channel, views • age): about 2.8 fit across a row, like YouTube on TV. Grids use 540 px cards, three across; Search's results beside the keyboard use 330 px cards with smaller text. A duration or LIVE badge, and a red progress line for videos in the history.
 
 ## Screens
 
 | Screen | Layout |
 |---|---|
-| Left menu | A rail of icons (the account at the top, showing its photo when signed in; Search, Home, Subscriptions, Library, Settings at the bottom). While it has focus it opens to 360 px with labels and a shadow over the screen |
+| Splash | The YouPipe mark and name on the background colour until Home shows its first row (at most 8 s). Samsung: `#splash`; Android: the launch screen (`launch_background.xml`), then `Splash` in `shell.dart` |
+| Top bar | Above Home, Subscriptions and Library (Samsung `topbar.js`, Android `TopBar` in `shell.dart`): the account at the top left (its photo when signed in), a Search box from the content's left edge, then the YouPipe logo and name. It scrolls away with the page, and focusing the first row brings the page back to its top. Up from the first row reaches Search; Up stops there |
+| Left menu | A rail of icons below the top bar: Search, Home, Subscriptions, Library, Settings at the bottom. While it has focus it opens to 360 px with labels and a shadow over the screen; the top bar's search box and name fade out meanwhile |
 | Home | Rows that slide sideways: Continue watching, Recommended, Latest from your subscriptions, Because you watched…, then topic rows (Music, Live now, then shuffled topics). Grey placeholder cards while a row loads |
 | Search | The keyboard on the left (7 columns: letters or 123, then Space/⌫/123, then Clear/Search); on the right, recent searches or suggestions while typing, and the results grid (3 across) after a search |
 | Subscriptions | A row of the subscribed channels, then the latest videos as a grid |
@@ -30,6 +32,7 @@ Both lay out a **1920×1080 stage** with the same pixel sizes:
 
 - **Arrows** move focus. In a row, Left/Right move along it and the focused card stays at the left; Up/Down go to the row above or below and **return to the card that row had last** (Samsung: `data-group`; Android: each row is one focus stop holding its own index). Grids move by cell and leave at their edges.
 - **Left** from the first card opens the menu; **Right** from the menu returns to where focus was.
+- **Up** from a section's first row goes to the top bar's Search; Left/Right there move between the account and Search; Down returns to the rows; Back returns to where focus was.
 - **OK** activates on release. **Holding OK** (600 ms) on a card opens its options: Play, Save to/Remove from Watch later, Go to channel; in Library also "Remove from …"; on channels Subscribe/Unsubscribe; on playlists Save to Library.
 - **Back:** closes a panel; then the open screen (player → previous screen); then goes Home; on Home it asks to exit.
 - **Media keys:** play/pause, play, pause, stop (leaves the player), fast-forward/rewind (seek), next/previous (and channel up/down) in the player.

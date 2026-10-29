@@ -62,7 +62,7 @@ var App = (function () {
     var screen = Router.top();
     if (screen && screen.onKey && screen.onKey(e)) return e.preventDefault();
     if (Platform.isBack(e)) {
-      if (Sidenav.contains(Focus.current)) Router.focusScreen();
+      if (Sidenav.contains(Focus.current) || Topbar.contains(Focus.current)) Router.focusScreen();
       else Router.back();
       return e.preventDefault();
     }
@@ -82,10 +82,13 @@ var App = (function () {
   }
 
   async function start() {
+    // Polls from the start, so a failed start still ends the splash.
+    hideSplash();
     fitStage();
     window.addEventListener('resize', fitStage);
     Platform.registerKeys();
     Sidenav.build(document.getElementById('sidenav'));
+    Topbar.build(document.getElementById('topbar'));
     Router.init(document.getElementById('screens'));
     Sidenav.register('account', AccountScreen.create);
     Sidenav.register('search', SearchScreen.create);
@@ -105,6 +108,19 @@ var App = (function () {
     Sidenav.go('home');
     checkAccount();
     if (/[?&]selftest\b/.test(location.search)) SelfTest.run();
+  }
+
+  /** The splash stays until Home shows its first row (or a message), at most 8 s. */
+  function hideSplash() {
+    var splash = document.getElementById('splash');
+    var started = Date.now();
+    var timer = setInterval(() => {
+      var ready = document.querySelector('.screen-home .card:not(.placeholder), .screen-home .message');
+      if (!ready && Date.now() - started < 8000) return;
+      clearInterval(timer);
+      splash.classList.add('done');
+      setTimeout(() => splash.remove(), 500);
+    }, 100);
   }
 
   /**

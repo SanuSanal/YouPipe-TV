@@ -843,6 +843,8 @@ class _WatchScreenState extends State<WatchScreen> {
                 if (upNext.isNotEmpty)
                   TvRow(
                     focusNode: _upNext,
+                    // Over the video, Up next keeps smaller cards so more of it shows.
+                    cardWidth: 372,
                     title: _queue != null ? 'Up next in ${_queue!.title ?? 'this playlist'}' : 'Up next',
                     items: upNext.take(30).toList(),
                     actions: ItemActions(

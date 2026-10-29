@@ -128,23 +128,8 @@ class _NavRailState extends State<NavRail> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 28, bottom: 56),
-                  child: Row(
-                    children: [
-                      SvgPicture.asset('assets/logo.svg', width: 56, height: 56),
-                      const SizedBox(width: 18),
-                      AnimatedOpacity(
-                        opacity: _focused ? 1 : 0,
-                        duration: Tv.slide,
-                        child: const Text(
-                          'YouPipe',
-                          style: TextStyle(fontSize: 34, fontWeight: FontWeight.w700, color: Tv.text),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                // The account and the YouPipe name sit in the top bar, above the rail.
+                const SizedBox(height: 120),
                 for (var i = 0; i < sections.length; i++) ...[
                   if (i == sections.length - 1) const Spacer(),
                   _item(sections[i], i),
@@ -161,10 +146,6 @@ class _NavRailState extends State<NavRail> {
     final focused = _focused && i == _index;
     final active = s.$1 == widget.active;
     final color = focused ? Tv.focusFg : (active ? Tv.text : Tv.text2);
-    // The account item shows the signed-in account's photo and name, like YouTube on TV.
-    final account = s.$1 == 'account' ? Account.instance : null;
-    final photo = account?.info?.photo;
-    final label = account == null ? s.$2 : (account.signedIn ? account.info?.name ?? 'Account' : 'Sign in');
     return GestureDetector(
       onTap: () => widget.onOpen(s.$1),
       child: Container(
@@ -179,21 +160,8 @@ class _NavRailState extends State<NavRail> {
         ),
         child: Row(
           children: [
-            if (photo != null)
-              ClipOval(child: NetImage(photo, width: 36, height: 36))
-            else
-              Icon(s.$3, size: 36, color: color),
-            if (_focused) ...[
-              const SizedBox(width: 28),
-              Flexible(
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 28, color: color),
-                ),
-              ),
-            ],
+            Icon(s.$3, size: 36, color: color),
+            if (_focused) ...[const SizedBox(width: 28), Text(s.$2, style: TextStyle(fontSize: 28, color: color))],
           ],
         ),
       ),
@@ -201,8 +169,9 @@ class _NavRailState extends State<NavRail> {
   }
 }
 
-/// The app's frame: the left menu and the sections (the account, Search, Home, Subscriptions, Library, Settings). A section is
-/// built when first opened and kept, so coming back keeps its place. Back goes to Home, then asks to exit.
+/// The app's frame: the left menu, the top bar and the sections (the account, Search, Home, Subscriptions, Library,
+/// Settings). A section is built when first opened and kept, so coming back keeps its place. Back goes to Home, then
+/// asks to exit. A splash covers it all until Home has its first row.
 class Shell extends StatefulWidget {
   const Shell({super.key});
 
@@ -211,20 +180,30 @@ class Shell extends StatefulWidget {
 }
 
 class ShellState extends State<Shell> {
+  /// The menu's sections; the account opens from the top bar.
   static const sections = [
-    ('account', 'Sign in', Icons.account_circle_outlined),
     ('search', 'Search', Icons.search),
     ('home', 'Home', Icons.home_filled),
     ('subscriptions', 'Subscriptions', Icons.subscriptions_outlined),
     ('library', 'Library', Icons.video_library_outlined),
     ('settings', 'Settings', Icons.settings_outlined),
   ];
+  static const _keys = ['account', 'search', 'home', 'subscriptions', 'library', 'settings'];
+
+  /// The sections with the top bar above them.
+  static const _withTopbar = {'home', 'subscriptions', 'library'};
   static const _system = MethodChannel('youpipe/system');
 
   final _nav = FocusNode(debugLabel: 'nav');
-  final _roots = {for (final s in sections) s.$1: FocusNode(debugLabel: s.$1, skipTraversal: true)};
+  final _topAccount = FocusNode(debugLabel: 'top account');
+  final _topSearch = FocusNode(debugLabel: 'top search');
+  final _roots = {for (final k in _keys) k: FocusNode(debugLabel: k, skipTraversal: true)};
   final _visited = <String>{'home'};
   final _lastFocus = <String, FocusNode>{};
+
+  /// How far each section's page has scrolled; the top bar moves up with it.
+  final _scrolled = <String, double>{};
+  final _topbarY = ValueNotifier<double>(0);
   String _active = 'home';
 
   @override
@@ -237,11 +216,17 @@ class ShellState extends State<Shell> {
   void dispose() {
     FocusManager.instance.removeListener(_remember);
     _nav.dispose();
+    _topAccount.dispose();
+    _topSearch.dispose();
+    _topbarY.dispose();
     for (final n in _roots.values) {
       n.dispose();
     }
     super.dispose();
   }
+
+  bool get _topbarShown => _withTopbar.contains(_active);
+  bool get _inTopbar => _topAccount.hasFocus || _topSearch.hasFocus;
 
   /// Remembers where focus was in each section, for Right from the menu.
   void _remember() {
@@ -255,6 +240,7 @@ class ShellState extends State<Shell> {
       _active = key;
       _visited.add(key);
     });
+    _topbarY.value = _scrolled[key] ?? 0;
     WidgetsBinding.instance.addPostFrameCallback((_) => focusScreen());
   }
 
@@ -284,7 +270,7 @@ class ShellState extends State<Shell> {
   };
 
   void _back() {
-    if (_nav.hasFocus) return focusScreen();
+    if (_nav.hasFocus || _inTopbar) return focusScreen();
     if (_active != 'home') return open('home');
     showConfirm(
       context,
@@ -292,6 +278,15 @@ class ShellState extends State<Shell> {
       'Exit',
       () => _system.invokeMethod<void>('exit').catchError((_) => SystemNavigator.pop()),
     );
+  }
+
+  /// The open section's page scrolled (not a row sliding sideways): the top bar follows it.
+  bool _onScroll(ScrollNotification n) {
+    if (n.depth == 0 && n.metrics.axis == Axis.vertical) {
+      _scrolled[_active] = n.metrics.pixels;
+      _topbarY.value = n.metrics.pixels;
+    }
+    return false;
   }
 
   @override
@@ -309,24 +304,29 @@ class ShellState extends State<Shell> {
             child: TvKeys(
               onEdge: (dir) {
                 if (dir == TraversalDirection.left) _nav.requestFocus();
+                // Up from a section's first row reaches the top bar's search box.
+                if (dir == TraversalDirection.up && _topbarShown) _topSearch.requestFocus();
                 return true;
               },
-              child: Stack(
-                children: [
-                  for (final s in sections)
-                    if (_visited.contains(s.$1))
-                      Offstage(
-                        offstage: s.$1 != _active,
-                        child: ExcludeFocus(
-                          excluding: s.$1 != _active,
-                          child: Focus(
-                            focusNode: _roots[s.$1],
-                            skipTraversal: true,
-                            child: FocusTraversalGroup(child: _section(s.$1)),
+              child: NotificationListener<ScrollNotification>(
+                onNotification: _onScroll,
+                child: Stack(
+                  children: [
+                    for (final k in _keys)
+                      if (_visited.contains(k))
+                        Offstage(
+                          offstage: k != _active,
+                          child: ExcludeFocus(
+                            excluding: k != _active,
+                            child: Focus(
+                              focusNode: _roots[k],
+                              skipTraversal: true,
+                              child: FocusTraversalGroup(child: _section(k)),
+                            ),
                           ),
                         ),
-                      ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -334,14 +334,192 @@ class ShellState extends State<Shell> {
             left: 0,
             top: 0,
             bottom: 0,
-            child: ListenableBuilder(
-              listenable: Account.instance,
-              builder: (context, _) =>
-                  NavRail(sections: sections, active: _active, onOpen: open, onExit: focusScreen, focusNode: _nav),
-            ),
+            child: NavRail(sections: sections, active: _active, onOpen: open, onExit: focusScreen, focusNode: _nav),
           ),
+          if (_topbarShown)
+            Positioned(
+              left: 0,
+              top: 0,
+              right: 0,
+              height: Tv.topbarHeight,
+              child: ValueListenableBuilder<double>(
+                valueListenable: _topbarY,
+                builder: (context, y, child) => Transform.translate(offset: Offset(0, -y), child: child),
+                child: TvKeys(
+                  // Up stops here; Left from the account opens the menu.
+                  onEdge: (dir) {
+                    if (dir == TraversalDirection.left) _nav.requestFocus();
+                    return true;
+                  },
+                  child: FocusTraversalGroup(
+                    child: ListenableBuilder(
+                      listenable: Listenable.merge([Account.instance, _nav]),
+                      builder: (context, _) => TopBar(
+                        accountNode: _topAccount,
+                        searchNode: _topSearch,
+                        menuOpen: _nav.hasFocus,
+                        onAccount: () => open('account'),
+                        onSearch: () => open('search'),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          const Splash(),
         ],
       ),
     ),
   );
+}
+
+/// The bar above Home, Subscriptions and Library, like YouTube on TV: the account at the top left, then a search box
+/// and the YouPipe name. It scrolls away with the page.
+class TopBar extends StatelessWidget {
+  const TopBar({
+    super.key,
+    required this.accountNode,
+    required this.searchNode,
+    required this.menuOpen,
+    required this.onAccount,
+    required this.onSearch,
+  });
+
+  final FocusNode accountNode;
+  final FocusNode searchNode;
+
+  /// The open menu's shadow covers the screen; the search box and the name step back with it.
+  final bool menuOpen;
+  final VoidCallback onAccount;
+  final VoidCallback onSearch;
+
+  @override
+  Widget build(BuildContext context) {
+    final photo = Account.instance.signedIn ? Account.instance.info?.photo : null;
+    return Padding(
+      padding: const EdgeInsets.only(top: 40),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(width: 20),
+          TvFocusable(
+            focusNode: accountNode,
+            scrollAlignment: null,
+            onSelect: onAccount,
+            builder: (context, focused) => AnimatedScale(
+              scale: focused ? 1.08 : 1,
+              duration: const Duration(milliseconds: 150),
+              child: Container(
+                width: 72,
+                height: 72,
+                decoration: BoxDecoration(color: focused ? Tv.focusBg : Colors.transparent, shape: BoxShape.circle),
+                alignment: Alignment.center,
+                child: photo != null
+                    ? ClipOval(child: NetImage(photo, width: 56, height: 56))
+                    : Icon(Icons.account_circle_outlined, size: 48, color: focused ? Tv.focusFg : Tv.text2),
+              ),
+            ),
+          ),
+          const SizedBox(width: Tv.navWidth + Tv.pad - 92),
+          AnimatedOpacity(
+            opacity: menuOpen ? 0 : 1,
+            duration: Tv.slide,
+            child: Row(
+              children: [
+                TvFocusable(
+                  focusNode: searchNode,
+                  scrollAlignment: null,
+                  onSelect: onSearch,
+                  builder: (context, focused) => AnimatedScale(
+                    scale: focused ? 1.03 : 1,
+                    duration: const Duration(milliseconds: 150),
+                    child: Container(
+                      width: 760,
+                      height: 72,
+                      padding: const EdgeInsets.symmetric(horizontal: 28),
+                      decoration: BoxDecoration(
+                        color: focused ? Tv.focusBg : Tv.surface,
+                        borderRadius: BorderRadius.circular(36),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.search, size: 36, color: focused ? Tv.focusFg : Tv.text2),
+                          const SizedBox(width: 20),
+                          Text('Search', style: TextStyle(fontSize: 28, color: focused ? Tv.focusFg : Tv.text2)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 44),
+                SvgPicture.asset('assets/logo.svg', width: 52, height: 52),
+                const SizedBox(width: 16),
+                const Text(
+                  'YouPipe',
+                  style: TextStyle(fontSize: 34, fontWeight: FontWeight.w700, letterSpacing: -0.5, color: Tv.text),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The splash: the YouPipe mark until Home has its first row ([Splash.done]), at most 8 s. It continues the Android
+/// launch screen (res/drawable/launch_background.xml).
+class Splash extends StatefulWidget {
+  const Splash({super.key});
+
+  static final _done = ValueNotifier(false);
+
+  /// Called by Home once a row has loaded, or Home has failed.
+  static void done() => _done.value = true;
+
+  @override
+  State<Splash> createState() => _SplashState();
+}
+
+class _SplashState extends State<Splash> {
+  bool _gone = false;
+
+  @override
+  void initState() {
+    super.initState();
+    Future<void>.delayed(const Duration(seconds: 8), Splash.done);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_gone) return const SizedBox.shrink();
+    return ValueListenableBuilder<bool>(
+      valueListenable: Splash._done,
+      builder: (context, done, _) => IgnorePointer(
+        ignoring: done,
+        child: AnimatedOpacity(
+          opacity: done ? 0 : 1,
+          duration: const Duration(milliseconds: 400),
+          onEnd: () {
+            if (done && mounted) setState(() => _gone = true);
+          },
+          child: Container(
+            color: Tv.bg,
+            alignment: Alignment.center,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SvgPicture.asset('assets/logo.svg', width: 168, height: 168),
+                const SizedBox(width: 36),
+                const Text(
+                  'YouPipe',
+                  style: TextStyle(fontSize: 88, fontWeight: FontWeight.w700, letterSpacing: -1.5, color: Tv.text),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

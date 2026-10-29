@@ -118,7 +118,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
       );
     }
     return ListView(
-      padding: const EdgeInsets.fromLTRB(Tv.pad, 56, 0, 600),
+      padding: const EdgeInsets.fromLTRB(Tv.pad, Tv.topbarHeight, 0, 600),
       children: [
         for (final s in sections)
           TvRow(

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
 import '../core/library.dart';
@@ -64,6 +65,10 @@ class ItemCard extends StatelessWidget {
     PlaylistItem p => _playlist(p),
   };
 
+  bool get _small => width < 420;
+  TextStyle get _titleStyle => _small ? Tv.smallCardTitle : Tv.cardTitle;
+  TextStyle get _metaStyle => _small ? Tv.smallCardMeta : Tv.cardMeta;
+
   Widget _thumb(Widget child) => AnimatedScale(
     scale: focused ? 1.06 : 1,
     duration: const Duration(milliseconds: 180),
@@ -99,8 +104,8 @@ class ItemCard extends StatelessWidget {
                 NetImage(v.thumbnailOrDefault, width: width, fit: v.isShort ? BoxFit.contain : BoxFit.cover),
                 if (v.isLive || v.durationText != null)
                   Positioned(
-                    right: 8,
-                    bottom: 10,
+                    right: 10,
+                    bottom: 12,
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                       decoration: BoxDecoration(
@@ -109,7 +114,7 @@ class ItemCard extends StatelessWidget {
                       ),
                       child: Text(
                         v.isLive ? 'LIVE' : v.durationText!,
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white),
+                        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
                       ),
                     ),
                   ),
@@ -132,10 +137,10 @@ class ItemCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          Text(v.title, maxLines: 2, overflow: TextOverflow.ellipsis, style: Tv.cardTitle),
+          Text(v.title, maxLines: 2, overflow: TextOverflow.ellipsis, style: _titleStyle),
           const SizedBox(height: 4),
-          Text(v.channelName ?? '', maxLines: 1, overflow: TextOverflow.ellipsis, style: Tv.cardMeta),
-          if (meta.isNotEmpty) Text(meta, maxLines: 1, overflow: TextOverflow.ellipsis, style: Tv.cardMeta),
+          Text(v.channelName ?? '', maxLines: 1, overflow: TextOverflow.ellipsis, style: _metaStyle),
+          if (meta.isNotEmpty) Text(meta, maxLines: 1, overflow: TextOverflow.ellipsis, style: _metaStyle),
         ],
       ),
     );
@@ -206,8 +211,8 @@ class ItemCard extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        Text(p.title, maxLines: 2, overflow: TextOverflow.ellipsis, style: Tv.cardTitle),
-        Text(p.channelName ?? 'Playlist', maxLines: 1, overflow: TextOverflow.ellipsis, style: Tv.cardMeta),
+        Text(p.title, maxLines: 2, overflow: TextOverflow.ellipsis, style: _titleStyle),
+        Text(p.channelName ?? 'Playlist', maxLines: 1, overflow: TextOverflow.ellipsis, style: _metaStyle),
       ],
     ),
   );
@@ -331,14 +336,14 @@ class _TvRowState extends State<TvRow> {
 
   @override
   Widget build(BuildContext context) {
-    final height = _hasChannels ? 260.0 : widget.cardWidth * 9 / 16 + 150;
+    final height = _hasChannels ? 260.0 : widget.cardWidth * 9 / 16 + 190;
     return Focus(
       focusNode: widget.focusNode,
       autofocus: widget.autofocus,
       canRequestFocus: widget.items.isNotEmpty,
       onFocusChange: (f) {
         setState(() => _focused = f);
-        if (f) Scrollable.ensureVisible(context, alignment: 0.05, duration: Tv.slide, curve: Curves.easeOut);
+        if (f) revealRow(context);
       },
       onKeyEvent: (node, e) {
         if (e is KeyDownEvent || e is KeyRepeatEvent) {
@@ -404,8 +409,8 @@ class TvGrid extends StatefulWidget {
     super.key,
     required this.items,
     required this.actions,
-    this.columns = 4,
-    this.cardWidth = Tv.cardWidth,
+    this.columns = 3,
+    this.cardWidth = Tv.gridCardWidth,
     this.onNearEnd,
     this.focusNode,
     this.autofocus = false,
@@ -509,6 +514,20 @@ class _TvGridState extends State<TvGrid> {
         ],
       ),
     );
+  }
+}
+
+/// Scrolls a row into view near the top of its page. The first row under the top bar (shell.dart) brings the page
+/// back to its very top instead, so the bar shows again.
+void revealRow(BuildContext context) {
+  final box = context.findRenderObject();
+  final position = Scrollable.maybeOf(context)?.position;
+  if (box == null || position == null) return;
+  final top = RenderAbstractViewport.of(box).getOffsetToReveal(box, 0).offset;
+  if (top <= Tv.topbarHeight) {
+    position.animateTo(0, duration: Tv.slide, curve: Curves.easeOut);
+  } else {
+    Scrollable.ensureVisible(context, alignment: 0.05, duration: Tv.slide, curve: Curves.easeOut);
   }
 }
 

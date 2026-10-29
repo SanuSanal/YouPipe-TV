@@ -76,7 +76,7 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
       );
     }
     return ListView(
-      padding: const EdgeInsets.fromLTRB(Tv.pad, 56, Tv.pad, 400),
+      padding: const EdgeInsets.fromLTRB(Tv.pad, Tv.topbarHeight, Tv.pad, 400),
       children: [
         TvRow(title: 'Channels', items: subs, actions: defaultActions(context)),
         Text(_videos.isEmpty && _refreshing ? 'Loading videos…' : 'Latest videos', style: Tv.rowTitle),

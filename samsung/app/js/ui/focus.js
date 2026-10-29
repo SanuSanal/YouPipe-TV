@@ -78,8 +78,9 @@ var Focus = (function () {
       var viewport = page.parentElement.clientHeight;
       var maxY = Math.max(0, page.scrollHeight - viewport);
       var y;
-      if (line.classList.contains('vtop')) {
-        // A page's header lines (a channel's banner and tabs) keep the page at its top.
+      if (line.classList.contains('vtop') || (page.dataset.top && top <= Number(page.dataset.top))) {
+        // A page's header lines (a channel's banner and tabs), and the first row under the top bar, keep the page at
+        // its top.
         y = 0;
       } else if (page.dataset.mode === 'keep') {
         // Lists: only move when the line would leave the viewport.

@@ -7,6 +7,7 @@ import '../innertube/innertube.dart';
 import '../ui/actions.dart';
 import '../ui/cards.dart';
 import '../ui/focusable.dart';
+import '../ui/shell.dart';
 import '../ui/theme.dart';
 
 class _Row {
@@ -86,6 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
               r.items = items;
               r.loading = false;
             });
+            if (items.isNotEmpty) Splash.done();
             _focusFirstIfIdle();
           } catch (e) {
             debugPrint('YouPipe: home row "${r.source.title}" failed: $e');
@@ -94,6 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
         },
     ]).then((_) {
       if (mounted && _rows.every((r) => r.items.isEmpty)) setState(() => _failed = true);
+      Splash.done();
     });
   }
 
@@ -144,7 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     final visible = _rows.where((r) => r.loading || r.items.isNotEmpty).toList();
     return ListView(
-      padding: const EdgeInsets.fromLTRB(Tv.pad, 56, 0, 600),
+      padding: const EdgeInsets.fromLTRB(Tv.pad, Tv.topbarHeight, 0, 600),
       children: [
         for (final r in visible)
           TvRow(

@@ -28,7 +28,9 @@
   --nav-w: 112px;
   --nav-open-w: 360px;
   --pad: 64px;
-  --card-w: 372px;
+  /* About 2.8 cards across, like YouTube on TV. */
+  --card-w: 600px;
+  --topbar-h: 152px;
   --gap: 28px;
   --slide: 0.22s cubic-bezier(0.2, 0, 0, 1);
 }
@@ -128,29 +130,9 @@ img.failed {
 #app.fullscreen #sidenav {
   display: none;
 }
-.nav-brand {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  height: 64px;
-  padding-left: 28px;
-  margin-bottom: 56px;
-  white-space: nowrap;
-}
-.nav-logo {
-  width: 56px;
-  height: 56px;
+.nav-space {
+  height: 120px;
   flex: none;
-}
-.nav-wordmark {
-  font-size: 34px;
-  font-weight: 700;
-  letter-spacing: -0.5px;
-  opacity: 0;
-  transition: opacity var(--slide);
-}
-#app.nav-open .nav-wordmark {
-  opacity: 1;
 }
 .nav-items {
   flex: 1;
@@ -326,7 +308,7 @@ img.failed {
   margin-bottom: 36px;
 }
 .row-title {
-  font-size: 30px;
+  font-size: 34px;
   font-weight: 500;
   margin: 0 0 14px;
   white-space: nowrap;
@@ -407,10 +389,10 @@ img.failed {
 }
 .badge {
   position: absolute;
-  right: 8px;
-  bottom: 10px;
+  right: 10px;
+  bottom: 12px;
   background: rgba(0, 0, 0, 0.82);
-  font-size: 18px;
+  font-size: 22px;
   font-weight: 500;
   padding: 3px 7px;
   border-radius: 5px;
@@ -434,8 +416,8 @@ img.failed {
   padding-top: 16px;
 }
 .card-title {
-  font-size: 24px;
-  line-height: 31px;
+  font-size: 30px;
+  line-height: 39px;
   font-weight: 500;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -443,8 +425,8 @@ img.failed {
   overflow: hidden;
 }
 .card-meta {
-  font-size: 20px;
-  line-height: 27px;
+  font-size: 24px;
+  line-height: 32px;
   color: var(--text-2);
   white-space: nowrap;
   overflow: hidden;
@@ -519,8 +501,9 @@ img.failed {
   transform: scale(1.06);
 }
 .grid {
+  --card-w: 540px;
   display: grid;
-  grid-template-columns: repeat(4, var(--card-w));
+  grid-template-columns: repeat(3, var(--card-w));
   gap: 44px var(--gap);
   padding: 14px 0 0;
 }
@@ -548,6 +531,9 @@ img.failed {
   flex: 1;
   min-width: 0;
   position: relative;
+}
+/* Beside the keyboard there's room for three smaller cards. */
+.search-right .grid {
   --card-w: 330px;
 }
 .search-right-viewport {
@@ -853,11 +839,126 @@ img.failed {
   border-radius: 50%;
   background: #2c2c2c;
 }
-.nav-avatar {
+
+/* Top bar: above Home, Subscriptions and Library (topbar.js) ----------------------------------------------------- */
+
+#topbar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  height: var(--topbar-h);
+  z-index: 4;
+  pointer-events: none;
+  transition: transform var(--slide);
+}
+.topbar-items {
+  display: flex;
+  align-items: center;
+  height: 72px;
+  margin-top: 40px;
+  pointer-events: auto;
+}
+.topbar-account {
+  width: 72px;
+  height: 72px;
+  margin-left: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-2);
+  transition: transform 0.15s;
+}
+.topbar-account .icon {
+  width: 48px;
+  height: 48px;
+}
+.topbar-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+}
+.topbar-account.focused {
+  background: var(--focus-bg);
+  color: var(--focus-fg);
+  transform: scale(1.08);
+}
+.topbar-search {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  width: 760px;
+  height: 72px;
+  margin-left: calc(var(--nav-w) + var(--pad) - 92px);
+  padding: 0 28px;
+  border-radius: 36px;
+  background: var(--surface);
+  color: var(--text-2);
+  font-size: 28px;
+  transition:
+    transform 0.15s,
+    opacity var(--slide);
+}
+.topbar-search .icon {
   width: 36px;
   height: 36px;
-  flex: none;
-  border-radius: 50%;
+}
+.topbar-search.focused {
+  background: var(--focus-bg);
+  color: var(--focus-fg);
+  transform: scale(1.03);
+}
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-left: 44px;
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  white-space: nowrap;
+  transition: opacity var(--slide);
+}
+.topbar-logo {
+  width: 52px;
+  height: 52px;
+}
+/* The open menu's shadow covers the screen; the search box and name step back with it. */
+#app.nav-open .topbar-search,
+#app.nav-open .topbar-brand {
+  opacity: 0;
+}
+.screen.has-topbar .screen-content {
+  padding-top: var(--topbar-h);
+}
+
+/* Splash: until Home has its first row ------------------------------------------------------------------------- */
+
+#splash {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 36px;
+  transition: opacity 0.4s;
+}
+#splash img {
+  width: 168px;
+  height: 168px;
+  opacity: 1;
+}
+#splash span {
+  font-size: 88px;
+  font-weight: 700;
+  letter-spacing: -1.5px;
+}
+#splash.done {
+  opacity: 0;
+  pointer-events: none;
 }
 
 /* Panels, dialogs, toast --------------------------------------------------------------------------------------- */
@@ -1357,6 +1458,16 @@ img.failed {
 }
 .watch-upnext {
   margin-top: 56px;
+  /* Over the video, Up next keeps smaller cards so more of it shows. */
+  --card-w: 372px;
+}
+.watch-upnext .card-title {
+  font-size: 26px;
+  line-height: 34px;
+}
+.watch-upnext .card-meta {
+  font-size: 22px;
+  line-height: 29px;
 }
 .captions {
   position: absolute;
@@ -1449,4 +1560,12 @@ img.failed {
   display: flex;
   gap: 16px;
   margin-top: 26px;
+}
+.search-right .card-title {
+  font-size: 26px;
+  line-height: 34px;
+}
+.search-right .card-meta {
+  font-size: 22px;
+  line-height: 29px;
 }

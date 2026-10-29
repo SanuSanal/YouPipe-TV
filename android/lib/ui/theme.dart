@@ -15,13 +15,25 @@ abstract final class Tv {
   static const navWidth = 112.0;
   static const navOpenWidth = 360.0;
   static const pad = 64.0;
-  static const cardWidth = 372.0;
+
+  /// About 2.8 cards across a row, like YouTube on TV.
+  static const cardWidth = 600.0;
+
+  /// Grids (Subscriptions, See all, a channel's videos) fit three across.
+  static const gridCardWidth = 540.0;
+
+  /// The bar above Home, Subscriptions and Library (shell.dart); their first row starts below it.
+  static const topbarHeight = 152.0;
   static const gap = 28.0;
   static const slide = Duration(milliseconds: 220);
 
-  static const rowTitle = TextStyle(fontSize: 30, fontWeight: FontWeight.w500, color: text);
-  static const cardTitle = TextStyle(fontSize: 24, height: 31 / 24, fontWeight: FontWeight.w500, color: text);
-  static const cardMeta = TextStyle(fontSize: 20, height: 27 / 20, color: text2);
+  static const rowTitle = TextStyle(fontSize: 34, fontWeight: FontWeight.w500, color: text);
+  static const cardTitle = TextStyle(fontSize: 30, height: 39 / 30, fontWeight: FontWeight.w500, color: text);
+  static const cardMeta = TextStyle(fontSize: 24, height: 32 / 24, color: text2);
+
+  /// Smaller cards (Search's results beside the keyboard).
+  static const smallCardTitle = TextStyle(fontSize: 26, height: 34 / 26, fontWeight: FontWeight.w500, color: text);
+  static const smallCardMeta = TextStyle(fontSize: 22, height: 29 / 22, color: text2);
   static const pageTitle = TextStyle(fontSize: 48, fontWeight: FontWeight.w500, color: text);
 
   static ThemeData theme() => ThemeData(

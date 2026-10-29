@@ -2,6 +2,7 @@
 var HomeScreen = (function () {
   function create() {
     var s = Screens.base('home', 64);
+    Topbar.attach(s);
     s.keep = true;
     var builtAt = 0;
     var keysAtBuild = 0;
@@ -53,7 +54,7 @@ var HomeScreen = (function () {
       if (s.el.hidden || Overlay.isOpen()) return;
       var f = Focus.current;
       var untouched = App.keyCount === keysAtBuild;
-      if (!untouched && f && f.isConnected && (s.el.contains(f) || Sidenav.contains(f))) return;
+      if (!untouched && f && f.isConnected && (s.el.contains(f) || Sidenav.contains(f) || Topbar.contains(f))) return;
       var first = s.content.querySelector('.focusable');
       if (first && first !== f) Focus.set(first, { instant: true });
     }
