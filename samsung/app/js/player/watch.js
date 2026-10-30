@@ -764,6 +764,14 @@ var Watch = (function () {
       hideControls();
       return true;
     }
+    // Left and Right stay in Up next's row: at its sides the nearest element that way is a button above, and the
+    // controls would slide back down.
+    if ((k === K.LEFT || k === K.RIGHT) && ui.upNext.contains(Focus.current)) {
+      var cards = Focus.candidates(ui.upNext);
+      var next = cards[cards.indexOf(Focus.current) + (k === K.RIGHT ? 1 : -1)];
+      if (next && next.offsetTop === Focus.current.offsetTop) Focus.set(next);
+      return true;
+    }
     return false;
   }
 

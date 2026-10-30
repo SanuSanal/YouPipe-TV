@@ -67,6 +67,7 @@ From `samsung/`:
 - **By hand:** Settings → Run the self test. The red button toggles the log.
 - **A release package:** `tizen package -t wgt -s <profile> -- <file>.wgt` signs an unsigned `.wgt` from GitHub Releases (checked 2026-10-29), then `tizen install -n <file>.wgt -s <TV-IP>:26101`.
 - The spike's self test ran 7/7 on the TV on 2026-10-28 (spike.md). The full app ran 8/8 on the TV on 2026-10-29 (1080p DASH, muxed 360p, live).
+- 2026-10-30: Up next's Left and Right at a row's ends on the TV, driven through the Web Inspector (`tv-selftest.mjs <port> "<expression>"` dispatching keydown events): focus stays on the card and Up next stays open.
 
 ## Android TV app
 
@@ -87,6 +88,7 @@ From `android/`: the library's JSON shapes and the WebVTT caption parser (`test/
 - Drive it with `adb -e shell input keyevent DPAD_LEFT|DPAD_RIGHT|DPAD_UP|DPAD_DOWN|DPAD_CENTER|BACK`, type with `adb -e shell input text <text>` (Search's keyboard takes typed characters), and look with `adb -e exec-out screencap -p > shot.png`.
 - 2026-10-29: Home rows, the left menu, Search (keyboard and suggestions), playback (DASH from VISIONOS through NewPipe), the player's controls, seeking with storyboard previews, Back, and Settings checked on the Android 16 TV emulator.
 - 2026-10-30: Back from the menu (Home, then the exit prompt), Up next (the new video starts with its details and controls shown, the new list arrives), Esc and Backspace as Back, and DASH and live HLS through the SurfaceView checked on the TV emulator. Its decoder resizes its buffers on each quality change, so the green-area bug (streaming.md) only showed on a real TV.
+- 2026-10-30: Up next's Left and Right at a row's ends hold focus on the card; Up from the first row returns to Play. `adb shell input keyevent` a second or so apart: the player's controls hide after a few seconds of playback, so pause first or a slow screenshot lets Right seek instead.
 - 2026-10-30: the update prompt with a build made with `--dart-define=APP_VERSION=1.0.0` (Install focused, the download with progress, Android's installer asking to allow unknown apps, Cancel back to Home), and Settings → Version showing the newer version; Samsung's prompt and Version row in the dev server.
 
 ### On a TV

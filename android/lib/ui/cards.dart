@@ -415,6 +415,7 @@ class TvGrid extends StatefulWidget {
     this.focusNode,
     this.autofocus = false,
     this.onReveal,
+    this.holdSides = false,
   });
 
   final List<YtItem> items;
@@ -427,6 +428,9 @@ class TvGrid extends StatefulWidget {
 
   /// Brings the focused card (its context) into view; by default its page scrolls to it.
   final void Function(BuildContext card)? onReveal;
+
+  /// Left and Right stop at the grid's sides instead of leaving it (the player's Up next, below its buttons).
+  final bool holdSides;
 
   @override
   State<TvGrid> createState() => _TvGridState();
@@ -495,8 +499,11 @@ class _TvGridState extends State<TvGrid> {
         if (e is KeyDownEvent || e is KeyRepeatEvent) {
           final k = e.logicalKey;
           final col = _index % cols;
-          if (k == LogicalKeyboardKey.arrowLeft) return col > 0 ? _move(_index - 1) : KeyEventResult.ignored;
-          if (k == LogicalKeyboardKey.arrowRight) return col < cols - 1 ? _move(_index + 1) : KeyEventResult.ignored;
+          final side = widget.holdSides ? KeyEventResult.handled : KeyEventResult.ignored;
+          if (k == LogicalKeyboardKey.arrowLeft) return col > 0 ? _move(_index - 1) : side;
+          if (k == LogicalKeyboardKey.arrowRight) {
+            return col < cols - 1 && _index + 1 < widget.items.length ? _move(_index + 1) : side;
+          }
           if (k == LogicalKeyboardKey.arrowUp) return _move(_index - cols);
           if (k == LogicalKeyboardKey.arrowDown) {
             if (_index + cols < widget.items.length) return _move(_index + cols);

@@ -868,6 +868,7 @@ class _WatchScreenState extends State<WatchScreen> {
                     focusNode: _upNext,
                     items: upNext.take(30).toList(),
                     onReveal: _revealUpNext,
+                    holdSides: true,
                     actions: ItemActions(
                       onSelect: (it) {
                         if (it is! VideoItem) return openItem(context, it);
