@@ -1,11 +1,12 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 import '../core/extras.dart';
 import '../core/library.dart';
 import '../core/settings.dart';
+import '../core/updates.dart';
 import '../ui/overlay.dart';
 import '../ui/theme.dart';
+import '../ui/updates.dart';
 
 /// Settings: a list; each row opens its choices in a side panel, like YouTube on TV. The same settings as the
 /// Samsung app.
@@ -17,7 +18,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  static const _repo = 'SanuSanal/YouPipe-TV';
   static const _qualities = <(Object, String)>[
     ('auto', 'Auto (up to 1080p)'),
     (1080, '1080p'),
@@ -60,21 +60,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
     ('ta', 'தமிழ்'),
   ];
 
-  String _version = '';
-
   @override
   void initState() {
     super.initState();
     Settings.instance.addListener(_changed);
     Library.instance.addListener(_changed);
-    // The release workflow passes the version (--dart-define=APP_VERSION).
-    _version = const String.fromEnvironment('APP_VERSION', defaultValue: 'dev');
+    Updates.available.addListener(_changed);
   }
 
   @override
   void dispose() {
     Settings.instance.removeListener(_changed);
     Library.instance.removeListener(_changed);
+    Updates.available.removeListener(_changed);
     super.dispose();
   }
 
@@ -116,20 +114,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _checkUpdates() async {
     Toast.show('Checking for updates…');
     try {
-      final r = await Dio().get<Map<String, dynamic>>('https://api.github.com/repos/$_repo/releases/latest');
-      final latest = (r.data?['tag_name'] as String? ?? '').replaceFirst('v', '');
-      if (latest.isEmpty) throw Exception('no release yet');
+      final latest = await Updates.check(force: true);
       if (!mounted) return;
-      if (latest == _version) {
-        Toast.show('YouPipe is up to date ($_version)');
+      if (Updates.isNewer(latest, Updates.version)) {
+        offerUpdate(context, latest);
       } else {
-        showConfirm(
-          context,
-          'Version $latest is available',
-          'OK',
-          () {},
-          detail: 'You have $_version. Install the new APK from sanusanal.github.io/YouPipe-TV',
-        );
+        Toast.show('YouPipe is up to date (${Updates.version})');
       }
     } catch (e) {
       Toast.show("Couldn't check for updates: $e");
@@ -214,8 +204,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
         onSelect: () => showConfirm(context, 'Clear search history?', 'Clear', () => lib.clear('searches')),
       ),
       'About',
-      PanelItem('Version', sub: 'Check for updates', value: _version, onSelect: _checkUpdates),
-      PanelItem('Source code', value: 'github.com/$_repo'),
+      PanelItem(
+        'Version',
+        sub: Updates.available.value == null ? 'Check for updates' : 'Version ${Updates.available.value} is available',
+        value: Updates.version,
+        onSelect: _checkUpdates,
+      ),
+      PanelItem('Source code', value: 'github.com/${Updates.repo}'),
     ];
     return ListView(
       padding: const EdgeInsets.fromLTRB(Tv.pad, 120, Tv.pad, 400),

@@ -46,7 +46,8 @@ Signed in on Android, every InnerTube call carries the session cookie and `Autho
 | `GET suggestqueries.google.com/complete/search?client=firefox&ds=yt` | `InnerTube.suggestions` | `suggestions` | Search suggestions |
 | `GET sponsor.ajay.app/api/skipSegments/<sha256 prefix>` | `SponsorBlock.segments` | `SponsorBlock.segments` | Only when SponsorBlock is on; only 4 hex characters of the hash leave the TV |
 | `GET returnyoutubedislikeapi.com/votes?videoId=` | `Dislikes.count` | `Dislikes.count` | Unless turned off |
-| `GET api.github.com/repos/SanuSanal/YouPipe-TV/releases/latest` | Settings → Version | Settings → Version | Only when asked |
+| `GET api.github.com/repos/SanuSanal/YouPipe-TV/releases/latest` | `Updates.check` | `Updates.check` | After Home loads, at most once a day, and from Settings → Version (release.md) |
+| `GET github.com/SanuSanal/YouPipe-TV/releases/download/v<version>/<apk>` → `release-assets.githubusercontent.com` | | `_install` (`lib/ui/updates.dart`) | Only when the user chooses Install |
 
 ## Android platform channels
 
@@ -55,4 +56,4 @@ Signed in on Android, every InnerTube call carries the session cookie and `Autho
 | `youpipe/stream_extractor` | `getVideoInfo {videoId, hl, gl, maxHeight}` | `StreamExtractorChannel` (copied from YouPipe) |
 | `youpipe/playback_proxy` | `url {url, mimeType}` → loopback URL | `PlaybackProxy` (copied from YouPipe) |
 | `youpipe/account` | `signIn` → cookie or null (opens `SignInActivity`), `clear` | `MainActivity`, `SignInActivity` |
-| `youpipe/system` | `playing {playing}` (keep the screen on), `exit` | `MainActivity` |
+| `youpipe/system` | `playing {playing}` (keep the screen on), `exit`, `abi` → the TV's first ABI, `install {path}` → null, `cancelled`, `signature` or Android's message | `MainActivity`, `AppUpdater` |

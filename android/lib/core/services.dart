@@ -7,6 +7,7 @@ import 'account.dart';
 import 'library.dart';
 import 'settings.dart';
 import 'store.dart';
+import 'updates.dart';
 
 /// The app's single instances, set up once in main.dart.
 abstract final class Services {
@@ -21,6 +22,7 @@ abstract final class Services {
   static Future<void> init() async {
     await Store.init();
     Settings.init();
+    Updates.init();
     yt.visitorData = Store.instance.get<String>('visitorData');
     applyLocale();
     Settings.instance.addListener(applyLocale);

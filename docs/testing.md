@@ -87,6 +87,7 @@ From `android/`: the library's JSON shapes and the WebVTT caption parser (`test/
 - Drive it with `adb -e shell input keyevent DPAD_LEFT|DPAD_RIGHT|DPAD_UP|DPAD_DOWN|DPAD_CENTER|BACK`, type with `adb -e shell input text <text>` (Search's keyboard takes typed characters), and look with `adb -e exec-out screencap -p > shot.png`.
 - 2026-10-29: Home rows, the left menu, Search (keyboard and suggestions), playback (DASH from VISIONOS through NewPipe), the player's controls, seeking with storyboard previews, Back, and Settings checked on the Android 16 TV emulator.
 - 2026-10-30: Back from the menu (Home, then the exit prompt), Up next (the new video starts with its details and controls shown, the new list arrives), Esc and Backspace as Back, and DASH and live HLS through the SurfaceView checked on the TV emulator. Its decoder resizes its buffers on each quality change, so the green-area bug (streaming.md) only showed on a real TV.
+- 2026-10-30: the update prompt with a build made with `--dart-define=APP_VERSION=1.0.0` (Install focused, the download with progress, Android's installer asking to allow unknown apps, Cancel back to Home), and Settings → Version showing the newer version; Samsung's prompt and Version row in the dev server.
 
 ### On a TV
 

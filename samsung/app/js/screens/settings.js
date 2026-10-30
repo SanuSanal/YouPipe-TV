@@ -42,7 +42,6 @@ var SettingsScreen = (function () {
     ['pt', 'Português'],
     ['ta', 'தமிழ்'],
   ];
-  var REPO = 'SanuSanal/YouPipe-TV';
 
   function labelOf(pairs, value) {
     var p = pairs.filter((x) => x[0] === value)[0];
@@ -109,18 +108,12 @@ var SettingsScreen = (function () {
   async function checkUpdates() {
     Overlay.toast('Checking for updates…');
     try {
-      var r = await Net.getJson('https://api.github.com/repos/' + REPO + '/releases/latest');
-      var latest = String(r.tag_name || '').replace(/^v/, '');
-      var mine = Platform.version();
-      if (!latest) throw new Error('no release yet');
-      if (latest === mine) Overlay.toast('YouPipe is up to date (' + mine + ')');
-      else
-        Overlay.confirm(
-          'Version ' + latest + ' is available',
-          'OK',
-          () => {},
-          'You have ' + mine + '. Install the new version from a computer: sanusanal.github.io/YouPipe-TV',
-        );
+      var latest = await Updates.check(true);
+      // The Version row shows what the check found, before the prompt opens over it.
+      var top = Router.top();
+      if (top && top.refresh && top.el.classList.contains('screen-settings') && !Overlay.isOpen()) top.refresh();
+      if (Updates.isNewer(latest, Platform.version())) Updates.offer(latest);
+      else Overlay.toast('YouPipe is up to date (' + Platform.version() + ')');
     } catch (e) {
       Overlay.toast("Couldn't check for updates: " + e.message);
     }
@@ -189,8 +182,8 @@ var SettingsScreen = (function () {
             }),
         ],
         ['About'],
-        ['Version', Platform.version(), checkUpdates, 'Check for updates'],
-        ['Source code', 'github.com/' + REPO, null],
+        ['Version', Platform.version(), checkUpdates, Updates.available() ? 'Version ' + Updates.available() + ' is available' : 'Check for updates'],
+        ['Source code', 'github.com/' + Updates.REPO, null],
         ['Run the self test', '', () => SelfTest.run(), 'Plays a few videos and reports what works (diagnostics)'],
         ['Show the log', '', () => Log.toggle(), 'Also the red button on the remote'],
       ].filter(Boolean);

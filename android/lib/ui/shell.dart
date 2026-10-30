@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../core/account.dart';
+import '../core/updates.dart';
 import '../screens/account.dart';
 import '../screens/home.dart';
 import '../screens/library.dart';
@@ -13,6 +15,7 @@ import 'cards.dart';
 import 'focusable.dart';
 import 'overlay.dart';
 import 'theme.dart';
+import 'updates.dart';
 
 /// Arrow keys a widget left alone move focus to the nearest stop in that direction; [onEdge] gets the ones that
 /// found nothing (the Shell turns Left into the menu). With [spatial] off, [onEdge] gets every arrow.
@@ -229,11 +232,28 @@ class ShellState extends State<Shell> {
   void initState() {
     super.initState();
     FocusManager.instance.addListener(_remember);
+    Splash.finished.addListener(_offerUpdate);
+  }
+
+  /// A few seconds after Home has loaded, a new version is offered once, if nothing else is open (docs/release.md).
+  Future<void> _offerUpdate() async {
+    if (!Splash.finished.value) return;
+    Splash.finished.removeListener(_offerUpdate);
+    await Future<void>.delayed(const Duration(seconds: 3));
+    try {
+      final version = await Updates.toOffer();
+      if (version == null || !mounted || ModalRoute.of(context)?.isCurrent != true) return;
+      await Updates.offered(version);
+      if (mounted) await offerUpdate(context, version);
+    } catch (e) {
+      debugPrint('YouPipe: update check failed: $e');
+    }
   }
 
   @override
   void dispose() {
     FocusManager.instance.removeListener(_remember);
+    Splash.finished.removeListener(_offerUpdate);
     _nav.dispose();
     _topSearch.dispose();
     _topbarY.dispose();
@@ -480,6 +500,9 @@ class Splash extends StatefulWidget {
 
   /// Called by Home once a row has loaded, or Home has failed.
   static void done() => _done.value = true;
+
+  /// Whether the splash has gone.
+  static ValueListenable<bool> get finished => _done;
 
   @override
   State<Splash> createState() => _SplashState();

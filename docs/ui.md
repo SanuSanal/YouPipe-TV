@@ -25,7 +25,8 @@ Both lay out a **1920×1080 stage** with the same pixel sizes:
 | Library | Rows: History, Watch later, Liked videos, Saved playlists, Subscriptions. Long lists open in full in a grid |
 | Channel | Banner, avatar, name, handle and counts, Subscribe; tabs Home (rows), Videos, Live, Playlists, Podcasts (grids, with Latest/Popular/Oldest chips) |
 | Playlist | Details with Play all, Shuffle and Save on the left; the videos as a list on the right |
-| Settings | A list; each row opens its choices in a side panel |
+| Settings | A list; each row opens its choices in a side panel. Version shows "Version X is available" once a check has found one |
+| Update prompt | A newer release, offered once, 3 s after Home loads with nothing over it (release.md): "YouPipe X is available". Android: Install (focused, then a download dialog with progress and Cancel, then Android's installer) and Later. Samsung: where to install it from |
 | Player | Full screen; see below |
 
 ## The remote

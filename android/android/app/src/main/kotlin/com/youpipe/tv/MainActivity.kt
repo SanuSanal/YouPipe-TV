@@ -26,7 +26,9 @@ class MainActivity : FlutterActivity() {
         Googlevideo.attach(this)
         StreamExtractorChannel.register(messenger)
         PlaybackProxy.register(messenger)
-        // `youpipe/system`: the screen stays on while a video plays; `exit` leaves the app from the exit dialog.
+        // `youpipe/system`: the screen stays on while a video plays; `exit` leaves the app from the exit dialog; `abi`
+        // and `install` fetch and install an update (AppUpdater, docs/release.md).
+        val updater = AppUpdater(this)
         MethodChannel(messenger, "youpipe/system").setMethodCallHandler { call, result ->
             when (call.method) {
                 "playing" -> {
@@ -43,6 +45,8 @@ class MainActivity : FlutterActivity() {
                     result.success(null)
                 }
 
+                "abi" -> result.success(Build.SUPPORTED_ABIS.firstOrNull())
+                "install" -> updater.install(call.argument<String>("path")!!, result)
                 else -> result.notImplemented()
             }
         }

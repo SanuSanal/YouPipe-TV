@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:youpipe_tv/core/format.dart';
 import 'package:youpipe_tv/core/library.dart';
 import 'package:youpipe_tv/core/store.dart';
+import 'package:youpipe_tv/core/updates.dart';
 import 'package:youpipe_tv/innertube/models.dart';
 import 'package:youpipe_tv/player/captions.dart';
 
@@ -118,6 +119,25 @@ so &amp; on
       expect(Captions.at(cues, const Duration(seconds: 1)), 'hi everyone');
       expect(Captions.at(cues, const Duration(seconds: 3)), 'hi everyone\nso & on');
       expect(Captions.at(cues, const Duration(seconds: 6)), '');
+    });
+  });
+
+  group('updates', () {
+    test('a higher MAJOR.MINOR.PATCH is newer, numerically; dev is older than any release', () {
+      expect(Updates.isNewer('1.0.4', '1.0.3'), isTrue);
+      expect(Updates.isNewer('1.0.10', '1.0.9'), isTrue);
+      expect(Updates.isNewer('2.0.0', '1.9.9'), isTrue);
+      expect(Updates.isNewer('1.0.3', '1.0.3'), isFalse);
+      expect(Updates.isNewer('1.0.2', '1.0.3'), isFalse);
+      expect(Updates.isNewer('1.0.3', 'dev'), isTrue);
+      expect(Updates.isNewer('beta', '1.0.3'), isFalse);
+    });
+
+    test('the APK for the TV: its ABI when the release has one, else every ABI', () {
+      const base = 'https://github.com/SanuSanal/YouPipe-TV/releases/download/v1.0.4/YouPipe-TV-v1.0.4';
+      expect(Updates.apkUrl('1.0.4', 'arm64-v8a'), '$base-arm64-v8a.apk');
+      expect(Updates.apkUrl('1.0.4', 'armeabi-v7a'), '$base-armeabi-v7a.apk');
+      expect(Updates.apkUrl('1.0.4', 'x86_64'), '$base-android.apk');
     });
   });
 }

@@ -165,13 +165,16 @@ Future<void> showPanel(
   );
 }
 
-/// A centred dialog with an action and Cancel; Cancel has focus.
+/// A centred dialog with an action and Cancel; Cancel has focus. [cancel] renames Cancel, or leaves it out when null;
+/// [focusAction] gives the action focus instead.
 Future<void> showConfirm(
   BuildContext context,
   String message,
   String action,
   VoidCallback onConfirm, {
   String? detail,
+  String? cancel = 'Cancel',
+  bool focusAction = false,
 }) => Navigator.of(context).push(
   _overlayRoute(
     (ctx) => Stage(
@@ -201,13 +204,16 @@ Future<void> showConfirm(
                   children: [
                     TvButton(
                       label: action,
+                      autofocus: focusAction || cancel == null,
                       onSelect: () {
                         Navigator.of(ctx).pop();
                         onConfirm();
                       },
                     ),
-                    const SizedBox(width: 24),
-                    TvButton(label: 'Cancel', autofocus: true, onSelect: () => Navigator.of(ctx).pop()),
+                    if (cancel != null) ...[
+                      const SizedBox(width: 24),
+                      TvButton(label: cancel, autofocus: !focusAction, onSelect: () => Navigator.of(ctx).pop()),
+                    ],
                   ],
                 ),
               ],

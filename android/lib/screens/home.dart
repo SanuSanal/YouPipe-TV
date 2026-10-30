@@ -108,7 +108,9 @@ class _HomeScreenState extends State<HomeScreen> {
       if (r.items.isEmpty) continue;
       Splash.done();
       final idle = KeyCounter.count == _keysAtBuild && !_rows.any((x) => x.focus.hasFocus);
-      if (idle && TickerMode.valuesOf(context).enabled) r.focus.requestFocus();
+      // Not from under a dialog or the player opened over Home.
+      final shown = TickerMode.valuesOf(context).enabled && ModalRoute.of(context)?.isCurrent != false;
+      if (idle && shown) r.focus.requestFocus();
       return;
     }
   });

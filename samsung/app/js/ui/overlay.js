@@ -75,10 +75,10 @@ var Overlay = (function () {
     return layer;
   }
 
-  /** A centred dialog with an action and Cancel. */
-  function confirm(message, action, onConfirm, detail) {
+  /** A centred dialog with an action and Cancel; Cancel has focus. opts.noCancel leaves Cancel out. */
+  function confirm(message, action, onConfirm, detail, opts) {
     var ok = h('div.button.focusable', { text: action });
-    var cancel = h('div.button.focusable', { text: 'Cancel' });
+    var cancel = opts && opts.noCancel ? null : h('div.button.focusable', { text: 'Cancel' });
     var layer = h('div.dialog-layer', [
       h('div.panel-backdrop'),
       h('div.dialog', [h('div.dialog-title', { text: message }), detail ? h('div.dialog-detail', { text: detail }) : null, h('div.dialog-buttons', [ok, cancel])]),
@@ -87,11 +87,13 @@ var Overlay = (function () {
       close(layer);
       onConfirm();
     };
-    cancel._activate = () => close(layer);
     ok.addEventListener('click', ok._activate);
-    cancel.addEventListener('click', cancel._activate);
+    if (cancel) {
+      cancel._activate = () => close(layer);
+      cancel.addEventListener('click', cancel._activate);
+    }
     open(layer);
-    Focus.set(cancel);
+    Focus.set(cancel || ok);
     return layer;
   }
 

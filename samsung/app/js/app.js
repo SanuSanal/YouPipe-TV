@@ -124,7 +124,20 @@ var App = (function () {
       clearInterval(timer);
       splash.classList.add('done');
       setTimeout(() => splash.remove(), 500);
+      setTimeout(offerUpdate, 3000);
     }, 100);
+  }
+
+  /** A few seconds after Home has loaded, a new version is offered once, if nothing else is open (docs/release.md). */
+  async function offerUpdate() {
+    try {
+      var version = await Updates.toOffer();
+      if (!version || !Router.atHome() || Overlay.isOpen()) return;
+      Updates.offered(version);
+      Updates.offer(version);
+    } catch (e) {
+      Log.add('update check failed: ' + e.message);
+    }
   }
 
   /**

@@ -12,6 +12,7 @@ Nothing about the user leaves the TV, unless they sign in (account.md): then And
 | `searches` | `[string]` | 30 |
 | `subsFeed` | `{at, videos: [video + publishedAt]}` | 600 videos, 60 days |
 | `visitorData` | InnerTube's anonymous session id | |
+| `updates` | `{checkedAt, latest, notified}`: when the latest release was checked (ms), its version, and the last version the start-up prompt offered (release.md) | |
 
 Items:
 - **video** `{type: 'video', id, title, channel, channelId, avatar, thumb, duration, views, published, live, short}`
