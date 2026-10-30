@@ -82,6 +82,8 @@ From `android/`: the library's JSON shapes and the WebVTT caption parser (`test/
 
 - The `YouPipe_TV` AVD (Android TV, x86_64). Use the SDK's adb (`%LOCALAPPDATA%\Android\sdk\platform-tools\adb.exe`), not the "Minimal ADB" on PATH.
 - Build and install: `flutter build apk --debug --target-platform android-x64`, then `adb -e install -r build/app/outputs/flutter-apk/app-debug.apk` and `adb -e shell am start -n com.youpipe.tv/.MainActivity`.
+- If videos show green or broken blocks (on this laptop the host GPU sometimes corrupts the emulator's decoder output, for every build), start it with `-gpu swiftshader_indirect`.
+- Keys from the emulator window and its Extended controls D-pad don't reach the Android 16 TV image (emulator 37.2); adb key presses do. Its sound doesn't reach Windows either: Android plays at full volume but the emulator's stream is silent. The same APK on the Android 13 phone AVD plays with sound, so check sound there or on a TV.
 - Drive it with `adb -e shell input keyevent DPAD_LEFT|DPAD_RIGHT|DPAD_UP|DPAD_DOWN|DPAD_CENTER|BACK`, type with `adb -e shell input text <text>` (Search's keyboard takes typed characters), and look with `adb -e exec-out screencap -p > shot.png`.
 - 2026-10-29: Home rows, the left menu, Search (keyboard and suggestions), playback (DASH from VISIONOS through NewPipe), the player's controls, seeking with storyboard previews, Back, and Settings checked on the Android 16 TV emulator.
 - 2026-10-30: Back from the menu (Home, then the exit prompt), Up next (the controls hide, the new list arrives), and DASH and live HLS through the SurfaceView checked on the TV emulator. Its decoder resizes its buffers on each quality change, so the green-area bug (streaming.md) only showed on a real TV.
