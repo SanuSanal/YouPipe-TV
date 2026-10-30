@@ -62,7 +62,11 @@ var App = (function () {
     var screen = Router.top();
     if (screen && screen.onKey && screen.onKey(e)) return e.preventDefault();
     if (Platform.isBack(e)) {
-      if (Sidenav.contains(Focus.current) || Topbar.contains(Focus.current)) Router.focusScreen();
+      // Back from the menu goes Home, and from Home's menu asks to exit, like YouTube on TV.
+      if (Sidenav.contains(Focus.current)) {
+        if (Router.atHome()) Router.exitPrompt();
+        else Sidenav.go('home');
+      } else if (Topbar.contains(Focus.current)) Router.focusScreen();
       else Router.back();
       return e.preventDefault();
     }

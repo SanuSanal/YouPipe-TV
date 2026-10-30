@@ -68,12 +68,21 @@ var Router = (function () {
     return true;
   }
 
+  /** Home is open with nothing stacked on it. */
+  function atHome() {
+    return stack.length === 1 && stack[0].nav === 'home';
+  }
+
   /** Back: the screen first, then the stack, then Home, then the exit dialog. */
   function back() {
     var s = top();
     if (s && s.onBack && s.onBack()) return;
     if (pop()) return;
     if (s && s.nav !== 'home') return Sidenav.go('home');
+    exitPrompt();
+  }
+
+  function exitPrompt() {
     Overlay.exitPrompt(() => Platform.exit());
   }
 
@@ -81,5 +90,15 @@ var Router = (function () {
     host = el;
   }
 
-  return { init: init, push: push, root: root, pop: pop, back: back, top: top, focusScreen: focusScreen };
+  return {
+    init: init,
+    push: push,
+    root: root,
+    pop: pop,
+    back: back,
+    atHome: atHome,
+    exitPrompt: exitPrompt,
+    top: top,
+    focusScreen: focusScreen,
+  };
 })();

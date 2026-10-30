@@ -126,7 +126,7 @@
     .needs { background: var(--paper); border-radius: 1.25rem; padding: 1.25rem 1.5rem; box-shadow: inset 0 0 0 1px var(--line); color: var(--steel); }
     .needs b { color: var(--ink); }
     .steps { list-style: none; counter-reset: step; padding: 0; margin: 1.25rem 0 0; display: grid; gap: 1rem; }
-    .steps > li { counter-increment: step; position: relative; background: var(--paper); border-radius: 1.25rem; padding: 1.5rem 1.5rem 1.5rem 4.75rem; box-shadow: inset 0 0 0 1px var(--line); }
+    .steps > li { counter-increment: step; position: relative; min-width: 0; background: var(--paper); border-radius: 1.25rem; padding: 1.5rem 1.5rem 1.5rem 4.75rem; box-shadow: inset 0 0 0 1px var(--line); }
     .steps > li::before { content: counter(step); position: absolute; left: 1.5rem; top: 1.4rem; width: 2.25rem; height: 2.25rem; border-radius: 50%; background: var(--signal); color: #fff; font: 700 1rem var(--display); display: grid; place-items: center; }
     .steps p, .steps ul { margin-top: 0.5rem; color: var(--steel); }
     .steps ul { padding-left: 1.2rem; }
@@ -268,6 +268,7 @@
                 <li><code>…-arm64-v8a.apk</code> is smaller, for most newer TVs and boxes. If it says "App not installed", use <code>…-armeabi-v7a.apk</code>: some TVs run 32-bit Android.</li>
               </ul>
               <div class="apks" id="apk-buttons"></div>
+              <p><b>On a phone, Chrome asks "File might be harmful"</b> about every APK that isn't from the Play Store, from this page or from GitHub. Choose <b>Download anyway</b>. Until you do, the download sits at the end looking paused; if you missed the question, open Chrome again and it's still waiting there.</p>
             </li>
             <li>
               <h3>Install and open it</h3>

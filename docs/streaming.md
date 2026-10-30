@@ -56,6 +56,7 @@ Only one engine owns the `<video>` at a time: Shaka is attached for a VOD and de
 The Android app plays like YouPipe (its docs/streaming.md), with the same copied code:
 - `StreamExtractorChannel.kt` (NewPipeExtractor v0.26.5) returns the video's info: a static DASH manifest (H.264 up to the chosen height, or hardware VP9 above 1080p), the muxed stream, the HLS URL, captions (WebVTT), storyboards and chapters.
 - `PlayerService` (`lib/player/player_service.dart`, a cut-down YouPipe `VideoPlayerService`): live → HLS; else the manifest file through ExoPlayer with the DASH client's User-Agent, falling back to the muxed stream through `PlaybackProxy.kt` (1 MB ranges at full speed). A mid-play error re-resolves once.
+- **The video draws into a SurfaceView** (`VideoViewType.platformView`, shown with hybrid composition), not a Flutter texture (2026-10-30). ExoPlayer opens the decoder at the stream's largest size so it can switch quality without a restart; on many TVs the hardware decoder then keeps its buffers at that size and crops each lower-quality frame out of them. Flutter's texture path on Android 10+ (ImageReader) ignores that crop, so the video filled part of the screen and the rest of the buffer showed as green. The emulator's decoder resizes its buffers instead, so it never showed this.
 - No background playback, notification, downloads or casting: it's a TV app.
 
 ## The dev proxy

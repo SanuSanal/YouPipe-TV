@@ -469,6 +469,8 @@ class _TvGridState extends State<TvGrid> {
   @override
   void didUpdateWidget(TvGrid old) {
     super.didUpdateWidget(old);
+    // A new list (the player's Up next for another video) starts from its first card; more of the same list keeps it.
+    if (widget.items.firstOrNull?.id != old.items.firstOrNull?.id) _index = 0;
     if (_index >= widget.items.length) _index = widget.items.isEmpty ? 0 : widget.items.length - 1;
   }
 

@@ -287,8 +287,10 @@ class ShellState extends State<Shell> {
     _ => const SettingsScreen(),
   };
 
+  /// Back from the menu goes Home, and from Home's menu asks to exit, like YouTube on TV; from the top bar it returns
+  /// to the screen.
   void _back() {
-    if (_nav.hasFocus || _inTopbar) return focusScreen();
+    if (_inTopbar) return focusScreen();
     if (_active != 'home') return open('home');
     showExitPrompt(context, () => _system.invokeMethod<void>('exit').catchError((_) => SystemNavigator.pop()));
   }

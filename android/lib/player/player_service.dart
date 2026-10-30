@@ -27,6 +27,12 @@ class PlayerService {
 
   /// ExoPlayer can stall forever on a bad stream; give up and fall back instead.
   static const _initTimeout = Duration(seconds: 20);
+
+  /// The video draws into a SurfaceView (a platform view) rather than a Flutter texture. ExoPlayer's decoder keeps
+  /// buffers at the stream's largest size and crops each lower-quality frame out of them; Flutter's texture path on
+  /// Android 10+ (ImageReader) ignores that crop, so the video filled part of the screen and the rest showed the
+  /// buffer's unused area as green (docs/streaming.md).
+  static const _view = VideoViewType.platformView;
   static const _system = MethodChannel('youpipe/system');
   bool _awake = false;
 
@@ -100,6 +106,7 @@ class PlayerService {
         Uri.parse(i.hlsUrl!),
         formatHint: VideoFormat.hls,
         httpHeaders: {'User-Agent': i.hlsUserAgent},
+        viewType: _view,
       );
       await c.initialize().timeout(_initTimeout);
       return (c, VideoSource.hls);
@@ -111,6 +118,7 @@ class PlayerService {
         Uri.file(i.manifestPath!),
         formatHint: VideoFormat.dash,
         httpHeaders: {'User-Agent': i.dashUserAgent},
+        viewType: _view,
       );
       try {
         await c.initialize().timeout(_initTimeout);
@@ -127,6 +135,7 @@ class PlayerService {
     final c = VideoPlayerController.networkUrl(
       relayed ?? Uri.parse(url),
       httpHeaders: {'User-Agent': i.muxedUserAgent},
+      viewType: _view,
     );
     await c.initialize().timeout(_initTimeout);
     return (c, VideoSource.muxed);
