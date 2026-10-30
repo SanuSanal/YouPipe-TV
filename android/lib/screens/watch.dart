@@ -126,11 +126,9 @@ class _WatchScreenState extends State<WatchScreen> {
 
   // Loading ------------------------------------------------------------------------------------------------------
 
-  /// Plays [video]; one picked in Up next ([fromUpNext]) starts with the controls out of its way, like YouTube on TV.
-  Future<void> _play(VideoItem video, {PlayQueue? queue, bool fromUpNext = false}) async {
+  Future<void> _play(VideoItem video, {PlayQueue? queue}) async {
     _saveProgress();
     _countdownTimer?.cancel();
-    _hideTimer?.cancel();
     setState(() {
       _item = video;
       _queue = queue;
@@ -147,13 +145,8 @@ class _WatchScreenState extends State<WatchScreen> {
       // Up next leaves with its old cards; the controls drop back down for the new video.
       _upNextFocused = false;
       _slide = 0;
-      if (fromUpNext) _controls = false;
     });
-    if (fromUpNext) {
-      _root.requestFocus();
-    } else {
-      _showControls(focusPlay: true);
-    }
+    _showControls(focusPlay: true);
     Services.yt.related(video.id).then((p) {
       if (mounted && _item.id == video.id) {
         setState(() => _related = p.items.where((i) => i is! VideoItem || (!i.isShort && i.id != video.id)).toList());
@@ -881,9 +874,9 @@ class _WatchScreenState extends State<WatchScreen> {
                         final q = _queue;
                         if (q != null) {
                           q.index = q.items.indexWhere((x) => x.id == it.id);
-                          _play(it, queue: q, fromUpNext: true);
+                          _play(it, queue: q);
                         } else {
-                          _play(it, fromUpNext: true);
+                          _play(it);
                         }
                       },
                       onLongPress: (it) => itemOptions(context, it),

@@ -135,12 +135,7 @@ var Watch = (function () {
     Dom.clear(ui.chapterTicks);
     renderButtons();
     renderUpNext();
-    // A video picked in Up next starts with the controls out of its way, like YouTube on TV.
-    if (opts.fromUpNext) {
-      s.el.classList.remove('controls', 'upnext');
-      ui.controls.style.transform = '';
-      Focus.blur();
-    } else showControls(false);
+    showControls(false);
     var metaPromise = InnerTube.next(item.id, null)
       .then((m) => {
         if (st.dead) return;
@@ -452,8 +447,8 @@ var Watch = (function () {
         play: (it) => {
           if (q) {
             q.index = q.items.indexOf(it);
-            play(it, { queue: q, fromUpNext: true });
-          } else play(it, { queue: null, fromUpNext: true });
+            play(it, { queue: q });
+          } else play(it, { queue: null });
         },
       },
     });

@@ -26,7 +26,30 @@ class YouPipeTv extends StatelessWidget {
     theme: Tv.theme(),
     navigatorKey: Toast.navigatorKey,
     // Everything, panels and toasts included, is laid out on the stage.
-    builder: (context, child) => Stage(color: Colors.black, child: child!),
+    builder: (context, child) => _KeyboardBack(
+      child: Stage(color: Colors.black, child: child!),
+    ),
     home: const Shell(),
+  );
+}
+
+/// Esc on a keyboard, and Backspace where nothing takes it (the search keyboard deletes with it), are the remote's
+/// Back, as in the Samsung app.
+class _KeyboardBack extends StatelessWidget {
+  const _KeyboardBack({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => Focus(
+    canRequestFocus: false,
+    skipTraversal: true,
+    onKeyEvent: (node, e) {
+      final k = e.logicalKey;
+      if (k != LogicalKeyboardKey.escape && k != LogicalKeyboardKey.backspace) return KeyEventResult.ignored;
+      if (e is KeyDownEvent) Toast.navigatorKey.currentState?.maybePop();
+      return KeyEventResult.handled;
+    },
+    child: child,
   );
 }
