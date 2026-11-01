@@ -69,22 +69,31 @@ class ItemCard extends StatelessWidget {
   TextStyle get _titleStyle => _small ? Tv.smallCardTitle : Tv.cardTitle;
   TextStyle get _metaStyle => _small ? Tv.smallCardMeta : Tv.cardMeta;
 
+  /// The focused card's white ring, drawn inside its edge so the card keeps its size.
+  static const _ring = 5.0;
+
   Widget _thumb(Widget child) => AnimatedScale(
     scale: focused ? 1.06 : 1,
     duration: const Duration(milliseconds: 180),
     child: Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        boxShadow: focused
-            ? const [
-                BoxShadow(color: Colors.white, spreadRadius: 5),
-                BoxShadow(color: Color(0x99000000), blurRadius: 32, offset: Offset(0, 12)),
-              ]
-            : null,
+        boxShadow: focused ? const [BoxShadow(color: Color(0x99000000), blurRadius: 32, offset: Offset(0, 12))] : null,
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
-        child: AspectRatio(aspectRatio: 16 / 9, child: child),
+        child: AspectRatio(
+          aspectRatio: 16 / 9,
+          // Always here, so focusing doesn't rebuild the thumbnail under it.
+          child: DecoratedBox(
+            position: DecorationPosition.foreground,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: focused ? Border.all(color: Colors.white, width: _ring) : null,
+            ),
+            child: child,
+          ),
+        ),
       ),
     ),
   );
@@ -118,11 +127,12 @@ class ItemCard extends StatelessWidget {
                       ),
                     ),
                   ),
+                // Inside the ring while focused, so the ring doesn't hide it.
                 if (progress > 0.02)
                   Positioned(
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
+                    left: focused ? _ring : 0,
+                    right: focused ? _ring : 0,
+                    bottom: focused ? _ring : 0,
                     height: 6,
                     child: Container(
                       color: const Color(0x59FFFFFF),
@@ -156,9 +166,9 @@ class ItemCard extends StatelessWidget {
           child: Container(
             width: 168,
             height: 168,
-            decoration: BoxDecoration(
+            foregroundDecoration: BoxDecoration(
               shape: BoxShape.circle,
-              boxShadow: focused ? const [BoxShadow(color: Colors.white, spreadRadius: 5)] : null,
+              border: focused ? Border.all(color: Colors.white, width: _ring) : null,
             ),
             child: ClipOval(child: NetImage(c.avatar, width: 168, height: 168)),
           ),

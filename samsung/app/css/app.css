@@ -405,9 +405,26 @@ img.failed {
 }
 .card.focused .thumb {
   transform: scale(1.06);
-  box-shadow:
-    0 0 0 5px #fff,
-    0 12px 32px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+}
+/* The focused ring sits inside the thumbnail's edge, over the image, so the card keeps its size. */
+.card.focused .thumb::after,
+.playlist-row.focused .thumb::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  border: 5px solid #fff;
+  border-radius: inherit;
+  pointer-events: none;
+}
+/* Inside the ring while focused, so the ring doesn't hide it. */
+.card.focused .progress {
+  left: 5px;
+  right: 5px;
+  bottom: 5px;
 }
 .placeholder .thumb {
   animation: pulse 1.4s ease-in-out infinite;
@@ -487,6 +504,7 @@ img.failed {
   width: 200px;
 }
 .avatar-wrap {
+  position: relative;
   width: 168px;
   height: 168px;
   margin: 0 auto;
@@ -502,7 +520,17 @@ img.failed {
 }
 .channel-card.focused .avatar-wrap {
   transform: scale(1.06);
-  box-shadow: 0 0 0 5px #fff;
+}
+.channel-card.focused .avatar-wrap::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  border: 5px solid #fff;
+  border-radius: 50%;
+  pointer-events: none;
 }
 .channel-card .card-title {
   -webkit-line-clamp: 1;
@@ -790,8 +818,8 @@ img.failed {
 .playlist-row.focused {
   background: rgba(255, 255, 255, 0.12);
 }
-.playlist-row.focused .thumb {
-  box-shadow: 0 0 0 4px #fff;
+.playlist-row.focused .thumb::after {
+  border-width: 4px;
 }
 .playlist-index {
   width: 48px;

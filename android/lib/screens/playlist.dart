@@ -195,10 +195,11 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                             ),
                           ),
                           const SizedBox(width: 24),
+                          // The ring sits inside the thumbnail's edge.
                           Container(
-                            decoration: BoxDecoration(
+                            foregroundDecoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
-                              boxShadow: focused ? const [BoxShadow(color: Colors.white, spreadRadius: 4)] : null,
+                              border: focused ? Border.all(color: Colors.white, width: 4) : null,
                             ),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(10),

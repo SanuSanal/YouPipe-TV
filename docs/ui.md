@@ -9,7 +9,7 @@ Both lay out a **1920×1080 stage** with the same pixel sizes:
 ## Look
 
 - Dark (`#0F0F0F`), Roboto (bundled on Samsung), YouPipe red `#FF0000` for the brand, the progress bar and the Subscribe button.
-- **Focus:** a white ring and a 6% scale on the focused card; white fill with dark text on focused buttons, list rows, keyboard keys and menu items.
+- **Focus:** a white ring and a 6% scale on the focused card (the ring is drawn inside the thumbnail's edge, over the image, so it doesn't make the card bigger; the progress bar moves inside it); white fill with dark text on focused buttons, list rows, keyboard keys and menu items.
 - Cards are 600 px wide (16:9 thumbnail, two-line 30 px title, channel, views • age): about 2.8 fit across a row, like YouTube on TV. Grids use 540 px cards, three across; Search's results beside the keyboard use 330 px cards with smaller text. A duration or LIVE badge, and a red progress line for videos in the history.
 
 ## Screens
