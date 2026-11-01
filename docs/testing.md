@@ -90,7 +90,8 @@ From `android/`: the library's JSON shapes and the WebVTT caption parser (`test/
 - 2026-10-30: Back from the menu (Home, then the exit prompt), Up next (the new video starts with its details and controls shown, the new list arrives), Esc and Backspace as Back, and DASH and live HLS through the SurfaceView checked on the TV emulator. Its decoder resizes its buffers on each quality change, so the green-area bug (streaming.md) only showed on a real TV.
 - 2026-10-30: Up next's Left and Right at a row's ends hold focus on the card; Up from the first row returns to Play. `adb shell input keyevent` a second or so apart: the player's controls hide after a few seconds of playback, so pause first or a slow screenshot lets Right seek instead.
 - 2026-10-30: the update prompt with a build made with `--dart-define=APP_VERSION=1.0.0` (Install focused, the download with progress, Android's installer asking to allow unknown apps, Cancel back to Home), and Settings → Version showing the newer version; Samsung's prompt and Version row in the dev server.
+- 2026-11-01: opening the account or Search for the first time no longer rebuilds Home (it lost its place, and OK or Right from the menu left focus in the menu); Home keeps its row and the menu returns to it. Found on a Fire TV, checked on the TV emulator.
 
 ### On a TV
 
-`adb connect <TV-IP>:5555` (with network debugging on), then `adb install -r` the APK, as the website explains.
+`adb connect <TV-IP>:5555` (with network debugging on), then `adb install -r` the APK, as the website explains. A debug build is signed with the debug key, so it won't install over a release from GitHub (`INSTALL_FAILED_UPDATE_INCOMPATIBLE`) without uninstalling it first, which clears the TV's library and sign-in.

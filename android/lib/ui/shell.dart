@@ -284,12 +284,13 @@ class ShellState extends State<Shell> {
 
   /// Focus back into the open section: where it was, or its first stop.
   void focusScreen() {
+    final root = _roots[_active]!;
     final last = _lastFocus[_active];
-    if (last != null && last.context != null && last.canRequestFocus) {
+    // Only while it's still in the section: a stop whose widget has gone (a row Home rebuilt) can't take focus.
+    if (last != null && last.canRequestFocus && last.ancestors.contains(root)) {
       last.requestFocus();
       return;
     }
-    final root = _roots[_active]!;
     final first = root.traversalDescendants.where((n) => n.canRequestFocus && n.context != null).firstOrNull;
     if (first != null) {
       first.requestFocus();
@@ -349,7 +350,10 @@ class ShellState extends State<Shell> {
                   children: [
                     for (final k in _keys)
                       if (_visited.contains(k))
+                        // Keyed: opening a section that comes before another (the account before Home) would
+                        // otherwise rebuild that one from scratch.
                         Offstage(
+                          key: ValueKey(k),
                           offstage: k != _active,
                           child: ExcludeFocus(
                             excluding: k != _active,
