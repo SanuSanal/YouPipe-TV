@@ -4,6 +4,7 @@ import '../core/extras.dart';
 import '../core/library.dart';
 import '../core/settings.dart';
 import '../core/updates.dart';
+import '../player/player_service.dart';
 import '../ui/overlay.dart';
 import '../ui/theme.dart';
 import '../ui/updates.dart';
@@ -60,9 +61,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     ('ta', 'தமிழ்'),
   ];
 
+  bool? _tunneling; // whether the TV can play tunneled (Audio sync), once known
+
   @override
   void initState() {
     super.initState();
+    PlayerService.tunnelingSupported.then((v) {
+      if (mounted) setState(() => _tunneling = v);
+    });
     Settings.instance.addListener(_changed);
     Library.instance.addListener(_changed);
     Updates.available.addListener(_changed);
@@ -164,6 +170,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
           s.speed,
           (v) => s.set('speed', v),
         ),
+      ),
+      PanelItem(
+        'Audio sync',
+        sub: _tunneling == false
+            ? "This TV's video decoder doesn't support it"
+            : 'For TVs where the sound is out of step with the picture: the TV keeps them together, like '
+                  "YouTube's own app. Playback speed may stay at Normal while it's on",
+        value: _tunneling == false ? 'Not available' : onOff(s.audioSync),
+        onSelect: () {
+          if (_tunneling == false) return Toast.show("This TV's video decoder doesn't support Audio sync");
+          s.set('audioSync', !s.audioSync);
+          Toast.show('Audio sync ${s.audioSync ? 'on' : 'off'}: it applies from the next video');
+        },
       ),
       'Extras',
       PanelItem(

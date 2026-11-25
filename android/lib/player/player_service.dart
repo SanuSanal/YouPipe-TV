@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
 
+import '../core/settings.dart';
 import 'playback_proxy.dart';
 import 'video_info.dart';
 
@@ -68,6 +69,7 @@ class PlayerService {
         await c.dispose();
         return false;
       }
+      if (Settings.instance.audioSync) await _tunnel();
       source = s;
       controller.value = c;
       var failed = false;
@@ -96,6 +98,28 @@ class PlayerService {
       if (load == _loads) error.value = e;
       debugPrint('YouPipe: open $id failed: $e');
       return false;
+    }
+  }
+
+  /// Whether this TV's H.264 decoder can play tunneled (Settings → Audio sync).
+  static final Future<bool> tunnelingSupported = _system
+      .invokeMethod<bool>('tunnelingSupported')
+      .then((v) => v == true)
+      .catchError((Object e) {
+        debugPrint('YouPipe: tunneling support: $e');
+        return false;
+      });
+
+  /// Audio sync: tunneled playback, where the TV keeps sound and picture together in hardware like YouTube's own app
+  /// (docs/streaming.md). Set before playback starts; ExoPlayer falls back to normal playback where a stream's
+  /// decoders can't tunnel.
+  Future<void> _tunnel() async {
+    if (!await tunnelingSupported) return;
+    try {
+      final players = await _system.invokeMethod<int>('tunneling', {'on': true});
+      debugPrint('YouPipe: tunneling on ($players player)');
+    } catch (e) {
+      debugPrint('YouPipe: tunneling: $e');
     }
   }
 

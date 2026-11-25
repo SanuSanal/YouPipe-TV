@@ -27,7 +27,8 @@ class MainActivity : FlutterActivity() {
         StreamExtractorChannel.register(messenger)
         PlaybackProxy.register(messenger)
         // `youpipe/system`: the screen stays on while a video plays; `exit` leaves the app from the exit dialog; `abi`
-        // and `install` fetch and install an update (AppUpdater, docs/release.md).
+        // and `install` fetch and install an update (AppUpdater, docs/release.md); `tunnelingSupported` and `tunneling`
+        // are Settings → Audio sync (Tunneling).
         val updater = AppUpdater(this)
         MethodChannel(messenger, "youpipe/system").setMethodCallHandler { call, result ->
             when (call.method) {
@@ -47,6 +48,13 @@ class MainActivity : FlutterActivity() {
 
                 "abi" -> result.success(Build.SUPPORTED_ABIS.firstOrNull())
                 "install" -> updater.install(call.argument<String>("path")!!, result)
+                "tunnelingSupported" -> result.success(Tunneling.supported())
+                "tunneling" -> try {
+                    result.success(Tunneling.set(flutterEngine, call.argument<Boolean>("on") == true))
+                } catch (e: Exception) {
+                    result.error("tunneling", e.toString(), null)
+                }
+
                 else -> result.notImplemented()
             }
         }

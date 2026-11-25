@@ -75,5 +75,8 @@ dependencies {
     // the Dart InnerTube client.
     implementation("com.github.TeamNewPipe:NewPipeExtractor:v0.26.5")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    // Tunneling.kt sets the track selector of video_player's ExoPlayer; the plugin ships the library itself, so this
+    // only compiles against it. Keep the version at video_player_android's (`exoplayerVersion` in its build file).
+    compileOnly("androidx.media3:media3-exoplayer:1.9.2")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs_nio:2.1.5")
 }

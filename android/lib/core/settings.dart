@@ -14,6 +14,7 @@ class Settings extends ChangeNotifier {
     'captions': false,
     'captionLang': null, // null: the TV's language
     'speed': 1.0,
+    'audioSync': false, // Android only: tunneled playback (docs/streaming.md)
     'sponsorBlock': false,
     'sbActions': <String, Object?>{}, // category → 'skip' | 'show' | 'off'
     'dislikes': true,
@@ -45,6 +46,7 @@ class Settings extends ChangeNotifier {
   bool get autoplay => _values['autoplay'] == true;
   bool get sponsorBlock => _values['sponsorBlock'] == true;
   bool get dislikes => _values['dislikes'] == true;
+  bool get audioSync => _values['audioSync'] == true;
   double get speed => (_values['speed'] as num?)?.toDouble() ?? 1;
 
   /// The language YouTube answers in: the setting, else the TV's.

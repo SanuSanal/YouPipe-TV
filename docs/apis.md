@@ -56,4 +56,4 @@ Signed in on Android, every InnerTube call carries the session cookie and `Autho
 | `youpipe/stream_extractor` | `getVideoInfo {videoId, hl, gl, maxHeight}` | `StreamExtractorChannel` (copied from YouPipe) |
 | `youpipe/playback_proxy` | `url {url, mimeType}` → loopback URL | `PlaybackProxy` (copied from YouPipe) |
 | `youpipe/account` | `signIn` → cookie or null (opens `SignInActivity`), `clear` | `MainActivity`, `SignInActivity` |
-| `youpipe/system` | `playing {playing}` (keep the screen on), `exit`, `abi` → the TV's first ABI, `install {path}` → null, `cancelled`, `signature` or Android's message | `MainActivity`, `AppUpdater` |
+| `youpipe/system` | `playing {playing}` (keep the screen on), `exit`, `abi` → the TV's first ABI, `install {path}` → null, `cancelled`, `signature` or Android's message, `tunnelingSupported` → bool, `tunneling {on}` → how many players were set (Settings → Audio sync) | `MainActivity`, `AppUpdater`, `Tunneling` |

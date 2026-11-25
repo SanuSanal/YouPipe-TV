@@ -4,7 +4,7 @@ Nothing about the user leaves the TV, unless they sign in (account.md): then And
 
 | Key | Shape | Limit |
 |---|---|---|
-| `settings` | `{quality: 'auto'\|1080\|720\|480\|360, autoplay, captions, captionLang, speed, sponsorBlock, sbActions: {category: 'skip'\|'show'\|'off'}, dislikes, gl, hl}` | |
+| `settings` | `{quality: 'auto'\|1080\|720\|480\|360, autoplay, captions, captionLang, speed, sponsorBlock, sbActions: {category: 'skip'\|'show'\|'off'}, dislikes, gl, hl, audioSync}` (`audioSync`: Android only, tunneled playback; Samsung leaves it alone) | |
 | `history` | `[{video, position, duration, at}]`, newest first; `position`/`duration` in seconds | 500 |
 | `subs` | `[channel]` | 2000 |
 | `watchLater`, `liked` | `[video]` | 500, 1000 |

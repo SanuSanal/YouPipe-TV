@@ -11,3 +11,7 @@
 -dontwarn javax.script.**
 -dontwarn jdk.dynalink.**
 -dontwarn org.mozilla.javascript.tools.**
+
+# Settings → Audio sync (Tunneling.kt) reads video_player's players and their track selector by field name.
+-keepclassmembers class io.flutter.plugins.videoplayer.VideoPlayerPlugin { *** videoPlayers; }
+-keepclassmembers class io.flutter.plugins.videoplayer.VideoPlayer { *** trackSelector; }
