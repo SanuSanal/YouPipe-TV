@@ -764,6 +764,14 @@ var Watch = (function () {
       hideControls();
       return true;
     }
+    // Left and Right go along the buttons, across the gap between the two groups, and stop at the row's ends: Left from
+    // Like would otherwise find Up next's first card below nearer than Next, past that gap.
+    if ((k === K.LEFT || k === K.RIGHT) && ui.buttons.contains(Focus.current)) {
+      var buttons = Focus.candidates(ui.buttons);
+      var to = buttons[buttons.indexOf(Focus.current) + (k === K.RIGHT ? 1 : -1)];
+      if (to) Focus.set(to);
+      return true;
+    }
     // Left and Right stay in Up next's row: at its sides the nearest element that way is a button above, and the
     // controls would slide back down.
     if ((k === K.LEFT || k === K.RIGHT) && ui.upNext.contains(Focus.current)) {

@@ -69,6 +69,7 @@ From `samsung/`:
 - The spike's self test ran 7/7 on the TV on 2026-10-28 (spike.md). The full app ran 8/8 on the TV on 2026-10-29 (1080p DASH, muxed 360p, live).
 - 2026-10-30: Up next's Left and Right at a row's ends on the TV, driven through the Web Inspector (`tv-selftest.mjs <port> "<expression>"` dispatching keydown events): focus stays on the card and Up next stays open.
 - 2026-11-25: Home's rows on the TV (UE43CU7020, Tizen 9.0), the same way: Right in the first row, Down, then Left opens the menu (it used to land on the first row's off-screen cards), Right returns to the second row's card, each row keeps its own position, and Right stops at a row's last card. Self test 8/8.
+- 2026-11-25: the player's buttons on the TV, the same way: on v1.0.7 Left from Like dropped into Up next (its first card was nearer than Next, past the gap between the groups); now Play → Right → Right → Left returns to Next, and Left/Right stop at Previous and the channel button. The Android emulator never had it.
 
 ## Android TV app
 
