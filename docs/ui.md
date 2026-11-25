@@ -25,14 +25,14 @@ Both lay out a **1920×1080 stage** with the same pixel sizes:
 | Library | Rows: History, Watch later, Liked videos, Saved playlists, Subscriptions. Long lists open in full in a grid |
 | Channel | Banner, avatar, name, handle and counts, Subscribe; tabs Home (rows), Videos, Live, Playlists, Podcasts (grids, with Latest/Popular/Oldest chips) |
 | Playlist | Details with Play all, Shuffle and Save on the left; the videos as a list on the right |
-| Settings | A list; each row opens its choices in a side panel. Version shows "Version X is available" once a check has found one |
+| Settings | A list; each row opens its choices in a side panel. Version shows "Version X is available" once a check has found one. Android only: Audio sync under Playback (tunneled playback, streaming.md), "Not available" where the TV's H.264 decoder can't tunnel |
 | Update prompt | A newer release, offered once, 3 s after Home loads with nothing over it (release.md): "YouPipe X is available". Android: Install (focused, then a download dialog with progress and Cancel, then Android's installer) and Later. Samsung: where to install it from |
 | Player | Full screen; see below |
 
 ## The remote
 
-- **Arrows** move focus. In a row, Left/Right move along it and the focused card stays at the left; Up/Down go to the row above or below and **return to the card that row had last** (Samsung: `data-group`; Android: each row is one focus stop holding its own index). Grids move by cell and leave at their edges.
-- **Left** from the first card opens the menu; **Right** from the menu returns to where focus was. Only Left enters the menu: Up and Down never do, even where a menu icon is nearer.
+- **Arrows** move focus. In a row, Left/Right move along it and the focused card stays at the left; they never leave it for another row (Left from its first card opens the menu, Right at its last card stays), even where a row above has slid along and its earlier cards sit off screen to the left; Up/Down go to the row above or below and **return to the card that row had last** (Samsung: `data-group`; Android: each row is one focus stop holding its own index). Grids move by cell and leave at their edges.
+- **Left** from the first card opens the menu; **Right** from the menu returns to where focus was (the same card of the same row). Only Left enters the menu: Up and Down never do, even where a menu icon is nearer.
 - **Up** from a section's first row goes to the top bar's Search (only Up reaches the top bar); Left there opens the menu; Down returns to the rows; Back returns to where focus was.
 - **OK** activates on release. **Holding OK** (600 ms) on a card opens its options: Play, Save to/Remove from Watch later, Go to channel; in Library also "Remove from …"; on channels Subscribe/Unsubscribe; on playlists Save to Library.
 - **Back:** closes a panel; then the open screen (player → previous screen); then goes Home; on Home it asks to exit. From the menu it goes Home, and from Home's menu asks to exit. On a keyboard, Esc is Back, and so is Backspace except while typing in Search.

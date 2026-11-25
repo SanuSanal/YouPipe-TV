@@ -68,6 +68,7 @@ From `samsung/`:
 - **A release package:** `tizen package -t wgt -s <profile> -- <file>.wgt` signs an unsigned `.wgt` from GitHub Releases (checked 2026-10-29), then `tizen install -n <file>.wgt -s <TV-IP>:26101`.
 - The spike's self test ran 7/7 on the TV on 2026-10-28 (spike.md). The full app ran 8/8 on the TV on 2026-10-29 (1080p DASH, muxed 360p, live).
 - 2026-10-30: Up next's Left and Right at a row's ends on the TV, driven through the Web Inspector (`tv-selftest.mjs <port> "<expression>"` dispatching keydown events): focus stays on the card and Up next stays open.
+- 2026-11-25: Home's rows on the TV (UE43CU7020, Tizen 9.0), the same way: Right in the first row, Down, then Left opens the menu (it used to land on the first row's off-screen cards), Right returns to the second row's card, each row keeps its own position, and Right stops at a row's last card. Self test 8/8.
 
 ## Android TV app
 
@@ -91,6 +92,7 @@ From `android/`: the library's JSON shapes and the WebVTT caption parser (`test/
 - 2026-10-30: Up next's Left and Right at a row's ends hold focus on the card; Up from the first row returns to Play. `adb shell input keyevent` a second or so apart: the player's controls hide after a few seconds of playback, so pause first or a slow screenshot lets Right seek instead.
 - 2026-10-30: the update prompt with a build made with `--dart-define=APP_VERSION=1.0.0` (Install focused, the download with progress, Android's installer asking to allow unknown apps, Cancel back to Home), and Settings → Version showing the newer version; Samsung's prompt and Version row in the dev server.
 - 2026-11-01: opening the account or Search for the first time no longer rebuilds Home (it lost its place, and OK or Right from the menu left focus in the menu); Home keeps its row and the menu returns to it. Found on a Fire TV, checked on the TV emulator.
+- 2026-11-25: the same row steps as on the Samsung TV (Right in the first row, Down, Left, Right, Up): Left opens the menu, Right returns to the second row's first card, Up returns to the first row's second card. The Android app never had Samsung's bug: each row is one focus stop. A quick-booted emulator had no network (Home showed only Continue watching); a cold boot (`-no-snapshot-load`) fixed it.
 
 ### On a TV
 

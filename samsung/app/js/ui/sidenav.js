@@ -85,6 +85,9 @@ var Sidenav = (function () {
 
   /** Focuses the menu on the active section. */
   function enter() {
+    // Right returns to where focus was (Router.focusScreen goes to lastFocus).
+    var top = Router.top();
+    if (top && Focus.current && top.el.contains(Focus.current)) top.lastFocus = Focus.current;
     var active = el.querySelector('.nav-item.active') || el.querySelector('.nav-item');
     Focus.set(active);
   }

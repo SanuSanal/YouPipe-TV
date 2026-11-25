@@ -147,6 +147,10 @@ var Focus = (function () {
       var list = candidates(root);
       if (!Sidenav.contains(current)) list = list.filter((el) => !Sidenav.contains(el));
       if (dir !== 'up' && !Topbar.contains(current)) list = list.filter((el) => !Topbar.contains(el));
+      // Left and Right never leave a row for another row. A row that has slid along keeps its earlier cards in the
+      // DOM to the left of the screen, so Left from the first card of the row below would otherwise land on them
+      // instead of opening the menu (and Right from a last card could jump to a longer row above).
+      if (horizontal && container) list = list.filter((el) => !el.closest('.hscroll'));
       target = nearest(dir, list);
       // Entering another group returns to where it was left.
       var g = groupOf(target);
